@@ -1,208 +1,252 @@
 const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
+const https = require("https");
 
-const baseApiUrl = async () => {
-  try {
-    const res = await axios.get(
-      "https://raw.githubusercontent.com/mahmudx7/HINATA/main/baseApiUrl.json"
-    );
-    return res.data.mahmud;
-  } catch (e) {
-    return "https://default-api.example.com";
-  }
-};
-
-const apiList = async () => {
-  const base = await baseApiUrl();
-  return [
-    base,
-    "https://mahmudx7-api.vercel.app",
-    "https://backup-api.example.com"
-  ];
-};
-
-async function fetchWithFallback(urlBuilder) {
-  const apis = await apiList();
-
-  for (let base of apis) {
-    try {
-      const url = urlBuilder(base);
-      const res = await axios.get(url, { timeout: 15000 });
-      if (res?.data) return res.data;
-    } catch (e) {}
-  }
-
-  throw new Error("All APIs failed");
-}
+let pendingDownloads = {};
 
 module.exports = {
-  config: {
-    name: "ytb",
-    aliases: ["youtube", "yt", "ytb2"], // ytb2 কে অ্যালাইয়াস হিসেবে যোগ করা হলো
-    version: "2.3",
-    author: "Siyam Hasan",
-    countDown: 6,
-    role: 0,
-    description: {
-      bn: "YouTube ভিডিও সার্চ ও ডাউনলোড (ytb থাম্বনেইল সহ, ytb2 থাম্বনেইল ছাড়া)",
-      en: "YouTube search & download system (ytb with thumbnail, ytb2 without thumbnail)"
-    },
-    category: "media"
-  },
+  config: {
+    name: "ytb",
+    aliases: ["ytb", "ytb2", "ytb3"],
+    version: "7.7",
+    author: "Siam Hasan",
+    role: 0,
+    category: "media",
+    shortDescription: "ইউটিউব ভিডিও সার্চ ও ডাউনলোড করুন খুব সহজে",
+    longDescription: "ইউটিউব থেকে ভিডিও সার্চ করুন, সেরা ফলাফল দেখুন এবং নাম্বার রিপ্লাই করে ডাউনলোড করুন।",
+    guide: {}
+  },
 
-  langs: {
-    bn: {
-      error: "❌ সমস্যা: %1",
-      noResult: "⭕ কিছু পাওয়া যায়নি: %1",
-      choose: "📌 নাম্বার দিয়ে রিপ্লাই করো:\n\n%1",
-      downloading: "⬇️ ডাউনলোড হচ্ছে: %1 - %2"
-    }
-  },
+  onStart: async function({ api, event, args }) {
+    const threadID = event.threadID;
+    const messageID = event.messageID;
+    
+    const firstWord = event.body?.trim().split(" ")[0] || "";
+    const commandName = firstWord.replace(/^[/!.]/, "").toLowerCase();
 
-  onStart: async function ({ api, args, event, getLang }) {
-    const { threadID, messageID, senderID } = event;
-    const input = args.join(" ").trim();
+    const query = args.join(" ").trim();  
+    if (!query) {
+      return api.sendMessage("❌ দয়া করে একটি সার্চ কিওয়ার্ড বা নাম লিখুন!", threadID, messageID);  
+    }  
 
-    if (!input) {
-      return api.sendMessage("👉 ব্যবহার: ytb song name অথবা ytb2 song name", threadID, messageID);
-    }
+    try {
+      await api.setMessageReaction("🔎", messageID, () => {}, true);
+    } catch (e) {}
 
-    // ইউজার কোন কমান্ডটি ব্যবহার করেছে তা চেক করার লজিক
-    const usedCommand = event.body.split(" ")[0].toLowerCase();
-    const isYtb2 = usedCommand.includes("ytb2");
+    try {  
+      const res = await axios.get(`https://aminul-youtube-api.vercel.app/search?query=${encodeURIComponent(query)}`);  
+      const data = res.data;  
 
-    try {
-      api.setMessageReaction("🔎", messageID, () => {}, true);
+      if (!data || data.length === 0) {  
+        return api.sendMessage("😔 কোনো ভিডিও পাওয়া যায়নি! অন্য কিছু লিখে সার্চ করুন।", threadID, messageID);  
+      }  
 
-      const data = await fetchWithFallback((base) =>
-        `${base}/api/ytb/search?q=${encodeURIComponent(input)}`
-      );
+      const videos = data.slice(0, 5); 
+      
+      pendingDownloads[threadID] = {
+        videos: videos,
+        mode: commandName,
+        userID: event.senderID
+      };  
 
-      const results = data?.results?.slice(0, 6);
+      let attachments = [];  
+      let msg = `🎵 ইউটিউব সার্চ ফলাফল 🎵\n🔍 খোঁজার শব্দ: ${query}\n\n`;  
+      msg += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n`;  
 
-      if (!results?.length) {
-        return api.sendMessage(getLang("noResult", input), threadID, messageID);
-      }
+      for (let i = 0; i < videos.length; i++) {  
+        const v = videos[i];  
+        msg += `🔹 ${i + 1}. ${v.title}\n`;  
+        msg += `⏳ সময়: ${v.duration?.timestamp || "প্রযোজ্য নয়"}\n`;  
+        msg += `📅 প্রকাশের তারিখ: ${v.publishedAt || "রিয়েল-টাইম"}\n`;  
+        msg += `▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n`;  
 
-      const cacheDir = path.join(__dirname, "cache");
-      fs.ensureDirSync(cacheDir);
+        if (commandName !== "ytb2" && commandName !== "ytb3" && v.thumbnail) {  
+          try {  
+            const thumbPath = await downloadImage(v.thumbnail, `thumb_${threadID}_${i}.jpg`);  
+            if (fs.existsSync(thumbPath)) {
+              attachments.push(fs.createReadStream(thumbPath));  
+            }
+          } catch (thumbErr) {  
+            console.error("Thumbnail download error:", thumbErr);  
+          }  
+        }  
+      }  
 
-      let msg = "";
-      let attachments = [];
+      msg += `\n📥 ১ থেকে ৫ এর মধ্যে যেকোনো একটি নাম্বার রিপ্লাই করে আপনার পছন্দের ভিডিওটি ডাউনলোড করুন!\n⚡ Author: Siam Hasan`;  
 
-      // যদি ytb2 কমান্ড ব্যবহার করা হয়, তবে থাম্বনেইল ডাউনলোড স্কিপ করবে (ফাস্ট লোড)
-      if (!isYtb2) {
-        // ⚡ FAST THUMBNAIL LOAD (parallel)
-        const thumbs = await Promise.all(
-          results.map(async (r, i) => {
-            try {
-              const thumbPath = path.join(
-                cacheDir,
-                `thumb_${senderID}_${Date.now()}_${i}.jpg`
-              );
+      return api.sendMessage({   
+        body: msg,   
+        attachment: attachments.length > 0 ? attachments : null   
+      }, threadID, (err, info) => {
+        if (!err && info) {
+          pendingDownloads[threadID].listMessageID = info.messageID;
+        }
+        setTimeout(() => {
+          for (let i = 0; i < 5; i++) {  
+            const thumbPath = path.join(__dirname, `thumb_${threadID}_${i}.jpg`);  
+            if (fs.existsSync(thumbPath)) {  
+              try { fs.unlinkSync(thumbPath); } catch(e) {} 
+            }  
+          }
+        }, 5000);
+      });  
 
-              const res = await axios.get(r.thumbnail, {
-                responseType: "arraybuffer",
-                timeout: 10000
-              });
+    } catch (err) {  
+      console.error("Search error:", err);  
+      api.sendMessage("⚠️ ইউটিউব থেকে ভিডিও আনতে ব্যর্থ হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।", threadID, messageID);  
+    }
+  },
 
-              fs.writeFileSync(thumbPath, Buffer.from(res.data));
-              return fs.createReadStream(thumbPath);
-            } catch {
-              return null;
-            }
-          })
-        );
-        attachments = thumbs.filter(Boolean);
-      }
+  onChat: async function({ api, event }) {
+    const threadID = event.threadID;
+    const messageID = event.messageID;
+    const message = event.body?.trim();
 
-      results.forEach((r, i) => {
-        msg += `${i + 1}. ${r.title}\n⏱ ${r.time}\n\n`;
-      });
+    if (!message || !pendingDownloads[threadID] || !/^[1-5]$/.test(message)) return;  
 
-      return api.sendMessage(
-        {
-          body:
-`📌 নাম্বার দিয়ে রিপ্লাই করো:
+    if (pendingDownloads[threadID].userID && pendingDownloads[threadID].userID !== event.senderID) {
+      return;
+    }
 
-${msg}`,
-          attachment: attachments.length ? attachments : undefined
-        },
-        threadID,
-        (err, info) => {
-          global.GoatBot.onReply.set(info.messageID, {
-            commandName: this.config.name,
-            author: senderID,
-            results,
-            menuMsgID: info.messageID
-          });
-        },
-        messageID
-      );
+    const sessionData = pendingDownloads[threadID];
+    const index = parseInt(message) - 1;  
+    const video = sessionData.videos[index];  
+      
+    if (!video) {  
+      return api.sendMessage("❌ ভুল নির্বাচন করা হয়েছে!", threadID, messageID);  
+    }  
 
-    } catch (e) {
-      return api.sendMessage(`❌ API সমস্যা: ${e.message}`, threadID, messageID);
-    }
-  },
+    const title = video.title;  
+    const url = video.url;  
+    const mode = sessionData.mode;
 
-  onReply: async function ({ event, api, Reply }) {
-    const { results, author, menuMsgID } = Reply;
+    if (sessionData.listMessageID) {
+      try {
+        await api.unsendMessage(sessionData.listMessageID);
+      } catch (e) {}
+    }
 
-    if (event.senderID !== author) return;
+    const loadingMsgInfo = await api.sendMessage(`⏳ ডাউনলোড হচ্ছে: ${title}... দয়া করে অপেক্ষা করুন!`, threadID);  
+    const loadingMessageID = loadingMsgInfo?.messageID;
 
-    const choice = parseInt(event.body);
-    if (!choice || choice < 1 || choice > results.length) return;
+    try {  
+      const downloadInfo = await axios.get(`https://aminul-rest-api-three.vercel.app/downloader/alldownloader?url=${encodeURIComponent(url)}`, { timeout: 25000 });  
+        
+      const videoData = downloadInfo.data?.data?.data;  
+      if (!videoData) {  
+        throw new Error("এপিআই রেসপন্স স্ট্রাকচার সঠিক নয়");  
+      }  
 
-    const videoID = results[choice - 1].id;
+      let targetUrl = videoData.high || videoData.low;
+      if (mode === "ytb3") {
+        if (videoData.audio) {
+          targetUrl = videoData.audio;
+        } else if (downloadInfo.data?.data?.audio) {
+          targetUrl = downloadInfo.data.data.audio;
+        } else if (downloadInfo.data?.audio) {
+          targetUrl = downloadInfo.data.audio;
+        }
+      }
 
-    try {
-      api.setMessageReaction("⏳", event.messageID, () => {}, true);
+      if (!targetUrl) {  
+        if (loadingMessageID) {
+          try { await api.unsendMessage(loadingMessageID); } catch(e) {}
+        }
+        return api.sendMessage("❌ এই মিডিয়াটির ডাউনলোড লিংক পাওয়া যায়নি। এটি সুরক্ষিত বা রেস্ট্রিক্টেড হতে পারে।", threadID);  
+      }  
 
-      // 🧹 DELETE MENU MESSAGE AFTER CHOICE
-      try {
-        if (menuMsgID) api.unsendMessage(menuMsgID);
-      } catch {}
+      const cacheDir = path.join(__dirname, "cache");  
+      await fs.ensureDir(cacheDir);  
 
-      const data = await fetchWithFallback((base) =>
-        `${base}/api/ytb/get?id=${videoID}&type=video`
-      );
+      const fileExtension = mode === "ytb3" ? "mp3" : "mp4";
+      const filePath = path.join(cacheDir, `yt_${threadID}_${Date.now()}.${fileExtension}`);  
 
-      const downloadLink = data?.data?.downloadLink;
-      const title = data?.data?.title;
+      await downloadFile(targetUrl, filePath);  
 
-      if (!downloadLink) throw new Error("Download link not found");
+      if (loadingMessageID) {
+        try { await api.unsendMessage(loadingMessageID); } catch(e) {}
+      }
 
-      const filePath = path.join(__dirname, "cache", `yt_${Date.now()}.mp4`);
+      await api.sendMessage({  
+        body: `✅ ডাউনলোড সফল হয়েছে!\n\n🎬 শিরোনাম: ${title}\n📥 আপনার ফাইলটি প্রস্তুত!`,  
+        attachment: fs.createReadStream(filePath)  
+      }, threadID, () => {  
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);  
+        }
+      });  
 
-      const response = await axios({
-        url: downloadLink,
-        method: "GET",
-        responseType: "stream",
-        timeout: 20000
-      });
+    } catch (err) {  
+      console.error("Download error:", err);  
+      if (loadingMessageID) {
+        try { await api.unsendMessage(loadingMessageID); } catch(e) {}
+      }
+      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+        api.sendMessage("⏱️ ডাউনলোডের সময় শেষ হয়ে গেছে! সার্ভার থেকে খুব ধীরগতি পাওয়া যাচ্ছে।", threadID);
+      } else {
+        api.sendMessage(`❌ ত্রুটি: ${err.message || "ডাউনলোড করতে ব্যর্থ হয়েছে।"}`, threadID);
+      }
+    }  
 
-      const writer = fs.createWriteStream(filePath);
-      response.data.pipe(writer);
-
-      writer.on("finish", () => {
-        api.sendMessage(
-          {
-            body: `👑𝗢𝗪𝗡Ｅ𝗥 🪄 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑 \n${title}`,
-            attachment: fs.createReadStream(filePath)
-          },
-          event.threadID,
-          () => fs.unlinkSync(filePath),
-          event.messageID
-        );
-      });
-
-      writer.on("error", () => {
-        api.sendMessage("❌ ডাউনলোড ব্যর্থ হয়েছে", event.threadID);
-      });
-
-    } catch (e) {
-      api.sendMessage(`❌ সমস্যা: ${e.message}`, event.threadID, event.messageID);
-    }
-  }
+    delete pendingDownloads[threadID];
+  }
 };
+
+async function downloadImage(url, filename) {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: url,
+      responseType: 'arraybuffer',
+      timeout: 10000
+    });
+
+    const filePath = path.join(__dirname, filename);  
+    await fs.writeFile(filePath, response.data);  
+    return filePath;
+  } catch (error) {
+    throw new Error(`থাম্বনেইল ডাউনলোড করতে ব্যর্থ: ${error.message}`);
+  }
+}
+
+function downloadFile(url, filepath) {
+  return new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(filepath);
+
+    const request = https.get(url, (response) => {  
+      if (response.statusCode === 301 || response.statusCode === 302) {  
+        const redirectUrl = response.headers.location;  
+        return downloadFile(redirectUrl, filepath).then(resolve).catch(reject);  
+      }  
+
+      if (response.statusCode !== 200) {
+        if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
+        return reject(new Error(`সার্ভার থেকে কোড এসেছে: ${response.statusCode}`));
+      }
+
+      response.pipe(file);  
+        
+      file.on('finish', () => {  
+        file.close();  
+        resolve();  
+      });  
+        
+    });
+
+    request.on('error', (err) => {  
+      if (fs.existsSync(filepath)) {  
+        fs.unlinkSync(filepath);  
+      }  
+      reject(err);  
+    });
+
+    request.setTimeout(40000, () => {
+      request.destroy();
+      if (fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath);
+      }
+      reject(new Error('সর 😁🫷 আবাল সময় শেষ'));
+    });
+  });
+}
