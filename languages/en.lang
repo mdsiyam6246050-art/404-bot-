@@ -1,157 +1,172 @@
-# index.js
-Goat.newVersionDetected=ʏᴏᴜ ᴀʀᴇ ᴜꜱɪɴɢ ᴠᴇʀꜱɪᴏɴ %1, ᴛʜᴇ ʟᴀᴛᴇꜱᴛ ᴠᴇʀꜱɪᴏɴ ɪꜱ %2. ᴘʟᴇᴀꜱᴇ ᴜᴘᴅᴀᴛᴇ ᴛᴏ ᴜꜱᴇ ᴛʜᴇ ʙᴏᴛ ʙᴇᴛᴛᴇʀ ʙʏ ᴛʏᴘɪɴɢ ɪɴᴛᴏ ᴛʜᴇ ᴄᴏɴꜱᴏʟᴇ/ᴄᴍᴅ ᴄᴏᴍᴍᴀɴᴅ: %3
-Goat.autoRestart1=ʙᴏᴛ ᴡɪʟʟ ᴀᴜᴛᴏ ʀᴇꜱᴛᴀʀᴛ ɪɴ %1
-Goat.autoRestart2=ʙᴏᴛ ᴡɪʟʟ ᴀᴜᴛᴏ ʀᴇꜱᴛᴀʀᴛ ʙʏ ᴄʀᴏɴ ᴊᴏʙ: %1
-Goat.googleApiTokenExpired=ɢᴏᴏɢʟᴇ ᴀᴘɪ ʀᴇꜰʀᴇꜱʜ ᴛᴏᴋᴇɴ ʜᴀꜱ ᴇxᴘɪʀᴇᴅ ᴏʀ ʙᴇᴇɴ ʀᴇᴠᴏᴋᴇᴅ, ᴘʟᴇᴀꜱᴇ ɢᴇᴛ ᴀ ɴᴇᴡ ᴛᴏᴋᴇɴ ᴀᴛ https://developers.google.com/oauthplayground/
+index.js
 
-# bot/login/login.js
-login.currentlyLogged=ʟᴏɢɪɴ ɪɴ ᴘʀᴏɢʀᴇss
-login.notFoundDirAccount=ᴄᴀɴɴᴏᴛ ꜰɪɴᴅ ꜰɪʟᴇ %1
-login.loginToken=ʟᴏɢɪɴ ᴡɪᴛʜ ᴀᴄᴄᴇss ᴛᴏᴋᴇɴ
-login.loginCookieString=ʟᴏɢɪɴ ᴡɪᴛʜ ᴄᴏᴏᴋɪᴇ sᴛʀɪɴɢ
-login.loginCookieNetscape=ʟᴏɢɪɴ ᴡɪᴛʜ ᴄᴏᴏᴋɪᴇ ɴᴇᴛsᴄᴀᴘᴇ
-login.loginCookieArray=ʟᴏɢɪɴ ᴡɪᴛʜ ᴄᴏᴏᴋɪᴇ ᴀʀʀᴀʏ
-login.loginPassword=ʟᴏɢɪɴ ᴡɪᴛʜ ᴇᴍᴀɪʟ & ᴘᴀssᴡᴏʀᴅ...
-login.accountError=ᴘʟᴇᴀsᴇ ᴇɴᴛᴇʀ ᴛʜᴇ ꜰᴜʟʟ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏᴋᴇɴ ɪɴ ᴛʜᴇ ꜰᴏʀᴍ ᴏꜰ %1 ᴏʀ ᴄᴏᴏᴋɪᴇ ɪɴ ᴛʜᴇ ꜰᴏʀᴍ ᴏꜰ sᴛʀɪɴɢ %2 ᴏʀ ᴄᴏᴏᴋɪᴇ ɪɴ ᴛʜᴇ ꜰᴏʀᴍ ᴏꜰ ᴀʀʀʏ:\n[\n  { ɴᴀᴍᴇ: %3, ᴠᴀʟᴜᴇ: %4 },\n  { ɴᴀᴍᴇ: %5, ᴠᴀʟᴜᴇ: %6 }\n]\n ᴏʀ\n[\n  { ᴋᴇʏ: %3, ᴠᴀʟᴜᴇ: %4 },\n  { ᴋᴇʏ: %5, ᴠᴀʟᴜᴇ: %6 }\n]\nɪɴᴛᴏ ᴛʜᴇ ꜰɪʟᴇ %7
-login.cannotFindAccount=ᴄᴀɴɴᴏᴛ ꜰɪɴᴅ ꜰᴀᴄᴇʙᴏᴏᴋ ᴀᴄᴄᴏᴜɴᴛ, ᴄʜᴏᴏsᴇ ᴏɴᴇ ᴏꜰ ᴛʜᴇ ꜰᴏʟʟᴏᴡɪɴɢ ᴏᴘᴛɪᴏɴs (ᴇɴᴛᴇʀ ᴛʜᴇ ɴᴜᴍʙᴇʀ ᴛᴏ ᴄʜᴏᴏsᴇ ᴏʀ ᴘʀᴇss ᴅᴏᴡɴ ᴀɴᴅ ᴜᴘ ᴛᴏ ᴄʜᴏᴏsᴇ ᴀɴᴅ ᴇɴᴛᴇʀ ᴛᴏ ᴄᴏɴꜰɪʀᴍ):
-login.chooseAccount=ʟᴏɢɪɴ ᴡɪᴛʜ ᴇᴍᴀɪʟ ᴀɴᴅ ᴘᴀssᴡᴏʀᴅ
-login.chooseToken=ʟᴏɢɪɴ ᴡɪᴛʜ ᴛᴏᴋᴇɴ ꜰᴜʟʟ ᴘᴇʀᴍɪssɪᴏɴ
-login.chooseCookieString=ʟᴏɢɪɴ ᴡɪᴛʜ ᴄᴏᴏᴋɪᴇ sᴛʀɪɴɢ
-login.chooseCookieArray=ʟᴏɢɪɴ ᴡɪᴛʜ ᴄᴏᴏᴋɪᴇ ᴀʀʀᴀʏ
-login.loginWith=ʏᴏᴜ ᴄʜᴏᴏsᴇ ᴛᴏ %1
-login.inputEmail=> ᴘʟᴇᴀsᴇ ᴇɴᴛᴇʀ ʏᴏᴜʀ ᴇᴍᴀɪʟ (ɪᴅ) ᴏʀ ᴘʜᴏɴᴇ ɴᴜᴍʙᴇʀ ꜰᴀᴄᴇʙᴏᴏᴋ ᴀᴄᴄᴏᴜɴᴛ:
-login.inputPassword=> ᴘʟᴇᴀsᴇ ᴇɴᴛᴇʀ ʏᴏᴜʀ ᴘᴀssᴡᴏʀᴅ:
-login.input2FA=> ᴘʟᴇᴀsᴇ ᴇɴᴛᴇʀ ᴛʜᴇ 2ꜰᴀ ᴄᴏᴅᴇ (ʟᴇᴀᴠᴇ ʙʟᴀɴᴋ ɪғ ʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ 2ꜰᴀ ᴇɴᴀʙʟᴇᴅ):
-login.inputToken=> ᴘʟᴇᴀsᴇ ᴇɴᴛᴇʀ ʏᴏᴜʀ ᴛᴏᴋᴇɴ ꜰᴜʟʟ ᴘᴇʀᴍɪssɪᴏɴ (sᴛᴀʀᴛ ᴡɪᴛʜ ᴇᴀᴀᴀᴀ):
-login.inputCookieString=> ᴘʟᴇᴀsᴇ ᴇɴᴛᴇʀ ʏᴏᴜʀ ᴄᴏᴏᴋɪᴇ sᴛʀɪɴɢ:
-login.inputCookieArray=> ᴘʟᴇᴀsᴇ ᴇɴᴛᴇʀ ʏᴏᴜʀ ᴄᴏᴏᴋɪᴇ ᴀʀʀᴀʏ:
-login.refreshCookie=ʀᴇꜰʀᴇsʜɪɴɢ ᴄᴏᴏᴋɪᴇ...
-login.refreshCookieError=ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜᴇɴ ʀᴇꜰʀᴇsʜɪɴɢ ᴛʜᴇ ᴄᴏᴏᴋɪᴇ
-login.refreshCookieSuccess=ʀᴇꜰʀᴇsʜᴇᴅ ᴄᴏᴏᴋɪᴇ sᴜᴄᴄᴇssꜰᴜʟʟʏ, ʀᴇsᴛᴀʀᴛ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ᴜsᴇ ᴛʜᴇ ɴᴇᴡ ᴄᴏᴏᴋɪᴇ
-login.refreshCookieWarning=ʏᴏᴜ ʜᴀᴠᴇ ᴇɴᴀʙʟᴇᴅ ᴛʜᴇ ᴀᴜᴛᴏ ʀᴇꜰʀᴇsʜ ᴄᴏᴏᴋɪᴇ ᴍᴏᴅᴇ, ʙᴜᴛ ʏᴏᴜ ʜᴀᴠᴇ ɴᴏᴛ ᴄᴏɴꜰɪɢᴜʀᴇᴅ ᴇᴍᴀɪʟ ᴀɴᴅ ᴘᴀssᴡᴏʀᴅ ɪɴ ᴛʜᴇ ꜰɪʟᴇ ᴄᴏɴꜰɪɢ.jѕᴏɴ
-login.tokenError=ᴛᴏᴋᴇɴ ɪs ɪɴᴠᴀʟɪᴅ ᴏʀ ᴇxᴘɪʀᴇᴅ. ᴘʟᴇᴀsᴇ ᴇɴᴛᴇʀ ᴛʜᴇ ꜰᴜʟʟ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏᴋᴇɴ ɪɴ ᴛʜᴇ ꜰᴏʀᴍ ᴏꜰ %1 ɪɴᴛᴏ ᴛʜᴇ ꜰɪʟᴇ %2
-login.cookieError=ᴄᴏᴏᴋɪᴇ ɪs ɪɴᴠᴀʟɪᴅ ᴏʀ ᴇxᴘɪʀᴇᴅ.
-login.loginPasswordError=ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜᴇɴ ʟᴏɢɪɴɢ ᴡɪᴛʜ ᴇᴍᴀɪʟ & ᴘᴀssᴡᴏʀᴅ ɪɴ ᴄᴏɴꜰɪɢ.jѕᴏɴ
-login.loginSuccess=ꜱᴜᴄᴄᴇssꜰᴜʟ ʟᴏɢɪɴ
-login.loginError=ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜᴇɴ sɪɢɴɪɴɢ ɪɴ
-login.openDashboardSuccess=ꜱᴜᴄᴄᴇssꜰᴜʟʟʏ ᴏᴘᴇɴᴇᴅ ʙᴏᴛ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ ᴘᴀɢᴇ
-login.openDashboardError=ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜᴇɴ ᴏᴘᴇɴɪɴɢ ᴛʜᴇ ʙᴏᴛ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ ᴘᴀɢᴇ
-login.changeGbanData=ᴅᴀᴛᴀ ʜᴀs ʙᴇᴇɴ ᴄʜᴀɴɢᴇᴅ, ɪᴛ ɪs ᴄᴜʀʀᴇɴᴛʟʏ ɪᴍᴘᴏssɪʙʟᴇ ᴛᴏ ʟᴀᴜɴᴄʜ ᴀ ʙᴏᴛ
-login.errorNoti=ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜᴇɴ ʀᴇᴛʀɪᴇᴠɪɴɢ ᴛʜᴇ ᴍᴇssᴀɢᴇ
-login.refreshFbstateSuccess=ʀᴇꜰʀᴇsʜᴇᴅ %1 ꜰɪʟᴇ
-login.refreshFbstateError=ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜᴇɴ ʀᴇꜰʀᴇsʜɪɴɢ ᴛʜᴇ %1 ꜰɪʟᴇ
-login.youAreBanned=ʏᴏᴜ ʜᴀᴠᴇ ʙᴇᴇɴ ʙᴀɴɴᴇᴅ ꜰʀᴏᴍ ᴛʜᴇ ɢᴏᴀᴛ-ʙᴏᴛ ᴘʀᴏᴊᴇᴄᴛ
-login.runBot=ʟᴀᴜɴᴄʜ ʙᴏᴛ sᴜᴄᴄᴇssꜰᴜʟʟʏ, sᴛᴀʀᴛ ʀᴇᴄᴇɪᴠɪɴɢ ᴍᴇssᴀɢᴇs ꜰʀᴏᴍ ᴜsᴇʀs
-login.notLoggedIn=ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ, ᴘʟᴇᴀsᴇ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ꜰᴀᴄᴇʙᴏᴏᴋ ᴀᴄᴄᴏᴜɴᴛ ᴀɢᴀɪɴ
-login.callBackError=ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜᴇɴ ᴄᴀʟʟʙᴀᴄᴋ ʟɪsᴛᴇɴᴍǫᴛᴛ
-login.userBanned=ʏᴏᴜ'ᴠᴇ ʙᴇᴇɴ ʙᴀɴɴᴇᴅ ꜰʀᴏᴍ ᴜsɪɴɢ ᴀ ʙᴏᴛ‼
-login.checkGbanError=ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜɪʟᴇ ᴄʜᴇᴄᴋɪɴɢ ɢʙᴀɴ, ᴛʀʏ ᴜᴘᴅᴀᴛᴇ sᴏᴜʀᴄᴇ ᴛᴏ ʟᴀᴛᴇsᴛ ᴠᴇʀsɪᴏɴ (ᴏᴘᴇɴ ᴄᴍᴅ ᴀɴᴅ ᴛʏᴘᴇ: ɴᴏᴅᴇ ᴜᴘᴅᴀᴛᴇ)
-login.gbanMessage=ʏᴏᴜ ʜᴀᴠᴇ ʙᴇᴇɴ ʙᴀɴɴᴇᴅ ꜰʀᴏᴍ ᴛʜᴇ ɢᴏᴀᴛ-ʙᴏᴛ ᴘʀᴏᴊᴇᴄᴛ ᴏɴ %1 ꜰᴏʀ ᴛʜᴇ ʀᴇᴀsᴏɴ: %2\n» ᴛɪᴍᴇ: %3
-login.gbanMessageToDate=ʏᴏᴜ ʜᴀᴠᴇ ʙᴇᴇɴ ʙᴀɴɴᴇᴅ ꜰʀᴏᴍ ᴛʜᴇ ɢᴏᴀᴛ-ʙᴏᴛ ᴘʀᴏᴊᴇᴄᴛ ᴏɴ %1 ꜰᴏʀ ᴛʜᴇ ʀᴇᴀsᴏɴ: %2\n» ᴛɪᴍᴇ: %3\n» ᴛᴏ ᴅᴀᴛᴇ: %4
-login.gbanAdminMessage=ᴜsᴇʀ %1 ʜᴀs ʙᴇᴇɴ ʙᴀɴɴᴇᴅ ꜰʀᴏᴍ ᴛʜᴇ ɢᴏᴀᴛ-ʙᴏᴛ ᴘʀᴏᴊᴇᴄᴛ ᴏɴ %2 ꜰᴏʀ ᴛʜᴇ ʀᴇᴀsᴏɴ: %3
-login.openServerUptimeSuccess=🚀 ᴏᴘᴇɴᴇᴅ ᴜᴘᴛɪᴍᴇ sᴇʀᴠᴇʀ: %1
-login.openServerUptimeError=ᴀɴ ᴇʀʀᴏʀ ʜᴀs ᴏᴄᴄᴜʀʀᴇᴅ, ᴄᴀɴɴᴏᴛ ᴏᴘᴇɴ sᴇʀᴠᴇʀ ᴜᴘᴛɪᴍᴇ
-login.restartListenMessage=ʟɪsᴛᴇɴᴍǫᴛᴛ ʀᴇsᴛᴀʀᴛ ᴇɴᴀʙʟᴇᴅ ᴇᴠᴇʀʏ %1
-login.stopRestartListenMessage=ʟɪsᴛᴇɴᴍǫᴛᴛ ʀᴇsᴛᴀʀᴛ ᴅɪsᴀʙʟᴇᴅ
-login.restartListenMessageError=ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜᴇɴ ʀᴇsᴛᴀʀᴛɪɴɢ ʟɪsᴛᴇɴᴍǫᴛᴛ
-login.restartListenMessage2=ꜱᴜᴄᴄᴇssꜰᴜʟʟʏ ʀᴇsᴛᴀʀᴛᴇᴅ ʟɪsᴛᴇɴᴍǫᴛᴛ
-login.refreshCookieAfter=ʀᴇꜰʀᴇsʜɪɴɢ ᴄᴏᴏᴋɪᴇ ᴀꜰᴛᴇʀ %1
-login.listenMqttClose=ʟɪsᴛᴇɴᴍǫᴛᴛ ᴄʟᴏsᴇᴅ
-login.listenMqttCloseByUser=ʟɪsᴛᴇɴᴍǫᴛᴛ ᴄʟᴏsᴇᴅ ʙʏ ᴜsᴇʀ
-login.retryCheckLiveCookie=ʀᴇᴛʀʏɪɴɢ ᴛᴏ ᴄʜᴇᴄᴋ ᴄᴏᴏᴋɪᴇ... %1
-login.startBotSuccess=ʙᴏᴛ ʜᴀs ʙᴇᴇɴ sᴛᴀʀᴛᴇᴅ sᴜᴄᴄᴇssꜰᴜʟʟʏ, sᴛᴀʀᴛ ʀᴇᴄᴇɪᴠɪɴɢ ᴍᴇssᴀɢᴇs ꜰʀᴏᴍ ᴜsᴇʀs
+Goat.newVersionDetected=আপনি %1 ভার্সন ব্যবহার করছেন, সর্বশেষ ভার্সন হলো %2। বটটি আরও ভালোভাবে ব্যবহার করতে অনুগ্রহ করে কনসোল/সিএমডিতে এই কমান্ডটি লিখে আপডেট করুন: %3
+Goat.autoRestart1=বটটি %1 এর মধ্যে স্বয়ংক্রিয়ভাবে রিস্টার্ট হবে
+Goat.autoRestart2=ক্রন জবের মাধ্যমে বটটি স্বয়ংক্রিয়ভাবে রিস্টার্ট হবে: %1
+Goat.googleApiTokenExpired=গুগল এপিআই রিফ্রেশ টোকেনের মেয়াদ শেষ হয়ে গেছে অথবা টোকেনটি বাতিল করা হয়েছে। অনুগ্রহ করে নতুন টোকেন সংগ্রহ করুন: https://developers.google.com/oauthplayground/
 
-version.tooOldVersion=ʏᴏᴜ ᴀʀᴇ ᴜsɪɴɢ ᴀ ᴛᴏᴏ ᴏʟᴅ ᴠᴇʀsɪᴏɴ ᴏꜰ ᴍᴀʜᴀʙᴜʙ ʙᴏᴛ, ᴘʟᴇᴀsᴇ ᴜᴘᴅᴀᴛᴇ ᴛᴏ ᴛʜᴇ ʟᴀᴛᴇsᴛ ᴠᴇʀsɪᴏɴ ʙʏ ᴛʏᴘɪɴɢ ᴛʜᴇ ᴄᴏᴍᴍᴀɴᴅ: %1 ɪɴᴛᴏ ᴛʜᴇ ᴄᴍᴅ/ᴄᴏɴsᴏʟᴇ/ᴛᴇʀᴍɪɴᴀʟ/sʜᴇʟʟ
+bot/login/login.js
 
-# bot/custom.js
-custom.refreshedFb_dtsg=ʀᴇғʀᴇsʜᴇᴅ ғʙ_ᴅᴛsɢ ᴀɴᴅ ᴊᴀᴢᴏᴇsᴛ sᴜᴄᴄᴇssғᴜʟʟʏ
-custom.refreshedFb_dtsgError=ᴀɴ ᴇʀʀᴏʀ ᴏccᴜʀʀᴇᴅ wʜᴇɴ ʀᴇғʀᴇsʜɪɴɢ ғʙ_ᴅᴛsɢ ᴀɴᴅ ᴊᴀᴢᴏᴇsᴛ
+login.currentlyLogged=লগইন প্রক্রিয়া চলছে
+login.notFoundDirAccount=%1 ফাইলটি খুঁজে পাওয়া যাচ্ছে না
+login.loginToken=অ্যাক্সেস টোকেন দিয়ে লগইন করুন
+login.loginCookieString=কুকি স্ট্রিং দিয়ে লগইন করুন
+login.loginCookieNetscape=নেটস্কেপ কুকি দিয়ে লগইন করুন
+login.loginCookieArray=কুকি অ্যারে দিয়ে লগইন করুন
+login.loginPassword=ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন...
+login.accountError=%7 ফাইলে %1 ফরম্যাটের সম্পূর্ণ পারমিশন টোকেন অথবা %2 ফরম্যাটের কুকি স্ট্রিং অথবা নিচের ফরম্যাটের কুকি অ্যারে লিখুন:\n[\n  { নাম: %3, মান: %4 },\n  { নাম: %5, মান: %6 }\n]\n অথবা\n[\n  { কী: %3, মান: %4 },\n  { কী: %5, মান: %6 }\n]
+login.cannotFindAccount=ফেসবুক অ্যাকাউন্ট খুঁজে পাওয়া যাচ্ছে না। নিচের অপশনগুলোর মধ্যে একটি বেছে নিন (বেছে নিতে নম্বর লিখুন অথবা উপরে-নিচে যাওয়ার জন্য ডাউন/আপ চাপুন এবং নিশ্চিত করতে এন্টার চাপুন):
+login.chooseAccount=ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন
+login.chooseToken=সম্পূর্ণ পারমিশন টোকেন দিয়ে লগইন করুন
+login.chooseCookieString=কুকি স্ট্রিং দিয়ে লগইন করুন
+login.chooseCookieArray=কুকি অ্যারে দিয়ে লগইন করুন
+login.loginWith=আপনি %1 দিয়ে লগইন করার অপশন বেছে নিয়েছেন
+login.inputEmail=> আপনার ফেসবুক অ্যাকাউন্টের ইমেইল (আইডি) অথবা ফোন নম্বর লিখুন:
+login.inputPassword=> আপনার পাসওয়ার্ড লিখুন:
+login.input2FA=> আপনার 2FA কোড লিখুন (2FA চালু না থাকলে খালি রাখুন):
+login.inputToken=> আপনার সম্পূর্ণ পারমিশন টোকেন লিখুন (eaaaaa দিয়ে শুরু হবে):
+login.inputCookieString=> আপনার কুকি স্ট্রিং লিখুন:
+login.inputCookieArray=> আপনার কুকি অ্যারে লিখুন:
+login.refreshCookie=কুকি রিফ্রেশ করা হচ্ছে...
+login.refreshCookieError=কুকি রিফ্রেশ করার সময় একটি ত্রুটি ঘটেছে
+login.refreshCookieSuccess=কুকি সফলভাবে রিফ্রেশ হয়েছে, নতুন কুকি ব্যবহার করতে বটটি রিস্টার্ট করুন
+login.refreshCookieWarning=আপনি অটো রিফ্রেশ কুকি মোড চালু করেছেন, কিন্তু config.jsоn ফাইলে ইমেইল ও পাসওয়ার্ড কনফিগার করেননি
+login.tokenError=টোকেনটি অবৈধ অথবা মেয়াদ শেষ হয়ে গেছে। %2 ফাইলে %1 ফরম্যাটের সম্পূর্ণ পারমিশন টোকেন লিখুন
+login.cookieError=কুকিটি অবৈধ অথবা মেয়াদ শেষ হয়ে গেছে।
+login.loginPasswordError=config.json-এ ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করার সময় একটি ত্রুটি ঘটেছে
+login.loginSuccess=সফলভাবে লগইন হয়েছে
+login.loginError=সাইন ইন করার সময় একটি ত্রুটি ঘটেছে
+login.openDashboardSuccess=বট ম্যানেজমেন্ট পেজ সফলভাবে খোলা হয়েছে
+login.openDashboardError=বট ম্যানেজমেন্ট পেজ খোলার সময় একটি ত্রুটি ঘটেছে
+login.changeGbanData=ডেটা পরিবর্তন করা হয়েছে, বর্তমানে বট চালু করা সম্ভব নয়
+login.errorNoti=মেসেজ গ্রহণ করার সময় একটি ত্রুটি ঘটেছে
+login.refreshFbstateSuccess=%1 ফাইল সফলভাবে রিফ্রেশ হয়েছে
+login.refreshFbstateError=%1 ফাইল রিফ্রেশ করার সময় একটি ত্রুটি ঘটেছে
+login.youAreBanned=আপনাকে Goat-Bot প্রজেক্ট থেকে ব্যান করা হয়েছে
+login.runBot=বট সফলভাবে চালু হয়েছে, এখন ব্যবহারকারীদের মেসেজ গ্রহণ করা শুরু হবে
+login.notLoggedIn=একটি ত্রুটি ঘটেছে, অনুগ্রহ করে আপনার ফেসবুক অ্যাকাউন্টটি আবার পরীক্ষা করুন
+login.callBackError=ListenMqtt কলব্যাক চালু করার সময় একটি ত্রুটি ঘটেছে
+login.userBanned=আপনাকে একটি বট ব্যবহারের জন্য ব্যান করা হয়েছে‼
+login.checkGbanError=GBAN পরীক্ষা করার সময় একটি ত্রুটি ঘটেছে। সর্বশেষ ভার্সনে সোর্স আপডেট করার চেষ্টা করুন (সিএমডি খুলে লিখুন: node update)
+login.gbanMessage=আপনাকে %1 তারিখে Goat-Bot প্রজেক্ট থেকে ব্যান করা হয়েছে। কারণ: %2\n» সময়: %3
+login.gbanMessageToDate=আপনাকে %1 তারিখে Goat-Bot প্রজেক্ট থেকে ব্যান করা হয়েছে। কারণ: %2\n» সময়: %3\n» শেষ তারিখ: %4
+login.gbanAdminMessage=ব্যবহারকারী %1-কে %2 তারিখে Goat-Bot প্রজেক্ট থেকে ব্যান করা হয়েছে। কারণ: %3
+login.openServerUptimeSuccess=🚀 সার্ভার আপটাইম সফলভাবে খোলা হয়েছে: %1
+login.openServerUptimeError=একটি ত্রুটি ঘটেছে, সার্ভার আপটাইম খোলা যাচ্ছে না
+login.restartListenMessage=ListenMqtt রিস্টার্ট প্রতি %1 সময় পর চালু করা হয়েছে
+login.stopRestartListenMessage=ListenMqtt রিস্টার্ট বন্ধ করা হয়েছে
+login.restartListenMessageError=ListenMqtt রিস্টার্ট করার সময় একটি ত্রুটি ঘটেছে
+login.restartListenMessage2=ListenMqtt সফলভাবে রিস্টার্ট হয়েছে
+login.refreshCookieAfter=%1 পরে কুকি রিফ্রেশ করা হবে
+login.listenMqttClose=ListenMqtt বন্ধ হয়েছে
+login.listenMqttCloseByUser=ব্যবহারকারীর মাধ্যমে ListenMqtt বন্ধ করা হয়েছে
+login.retryCheckLiveCookie=কুকি পরীক্ষা করার জন্য আবার চেষ্টা করা হচ্ছে... %1
+login.startBotSuccess=বট সফলভাবে চালু হয়েছে, এখন ব্যবহারকারীদের মেসেজ গ্রহণ করা শুরু হবে
 
-# bot/login/loadData.js
-loadData.loadThreadDataSuccess=ʟᴏᴀᴅᴇᴅ %1 ɢʳᴏᴜᴘ's ᴅᴀᴛᴀ sᴜᴄᴄᴇssғᴜʟʟʏ!
-loadData.loadUserDataSuccess=ʟᴏᴀᴅᴇᴅ %1 ᴜsᴇʀ's ᴅᴀᴛᴀ sᴜᴄᴄᴇssғᴜʟʟʏ!
-loadData.refreshingThreadData=ᴜᴘᴅᴀᴛɪɴɢ ᴛʜᴇ ɪɴғᴏʀᴍᴀᴛɪᴏɴ ᴏғ ᴛʜᴇ ɢʳᴏᴜᴘs...
-loadData.refreshThreadDataSuccess=ᴜᴘᴅᴀᴛᴇᴅ ɪɴғᴏʀᴍᴀᴛɪᴏɴ ᴏғ %1 ɢʳᴏᴜᴘ!
-loadData.refreshThreadDataError=ˢᴏᴍᴇᴛʜɪɴɢ ᴡᴇɴᴛ ᴡʀᴏɴɢ wʜᴇɴ ᴜᴘᴅᴀᴛɪɴɢ ᴛʜᴇ ɢʳᴏᴜᴘs ɪɴғᴏʀᴍᴀᴛɪᴏɴ!
+version.tooOldVersion=আপনি Mahabub Bot-এর অনেক পুরোনো ভার্সন ব্যবহার করছেন। সর্বশেষ ভার্সনে আপডেট করতে CMD/Console/Terminal/Shell-এ এই কমান্ডটি লিখুন: %1
 
-# bot/login/loadScripts.js
-loadScripts.loadScriptsError=ᴛʜᴇ %1 ғɪʟᴇs ʜᴀᴠᴇ ᴀɴ ᴇʀʀᴏʀ ᴅᴜʀɪɴɢ ʟᴏᴀᴅɪɴɢ:
-loadScripts.loadScriptsNotMatchOrigin=ᴛʜᴇ %1 ғɪʟᴇs ᴅᴏ ɴᴏᴛ ᴍᴀᴛᴄʜ ᴛʜᴇ ᴏʀɪɢɪɴᴀʟ ғɪʟᴇs ᴏɴ ᴛʜᴇ ɢɪᴛʜᴜʙ prᴏᴊᴇᴄᴛ, ᴍᴀᴋᴇ sᴜʀᴇ ᴛʜᴀᴛ ᴛʜᴇsᴇ cᴏᴍᴍᴀɴᴅ ғɪʟᴇs ᴀʀᴇ ʀᴇʟɪᴀʙʟᴇ:
-loadScripts.NOT_FOUND=ɴᴏᴛ ғᴏᴜɴᴅ ɪɴ ᴛʜᴇ ᴏʀɪɢɪɴᴀʟ sᴏᴜʀᴄᴇ cᴏᴅᴇ:
-loadScripts.NOT_MATCH=ᴅᴏᴇs ɴᴏᴛ ᴍᴀᴛᴄʜ ᴛʜᴇ ᴏʀɪɢɪɴᴀʟ sᴏᴜʀᴄᴇ cᴏᴅᴇ:
+bot/custom.js
 
-# bot/login/socketIO.js
-socketIO.connected=ᴄᴏɴɴᴇᴄᴛᴇᴅ ᴛᴏ sᴏᴄᴋᴇᴛ.ɪᴏ sᴇʀᴠᴇʀ
-socketIO.error=ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜᴇɴ cᴏɴɴᴇᴄᴛɪɴɢ ᴛᴏ ᴛʜᴇ sᴏᴄᴋᴇᴛ.ɪᴏ sᴇʀᴠᴇʀ
+custom.refreshedFb_dtsg=FB_DTSG এবং JAZOEST সফলভাবে রিফ্রেশ হয়েছে
+custom.refreshedFb_dtsgError=FB_DTSG এবং JAZOEST রিফ্রেশ করার সময় একটি ত্রুটি ঘটেছে
 
-# bot/handler/handlerCheckData.js
-handlerCheckData.cantCreateThread=ɢʳᴏᴜᴘs ᴡɪᴛʜ ɪᴅ '%1' ᴄᴀɴɴᴏᴛ ʙᴇ ᴡʀɪᴛᴛᴇɴ ᴛᴏ ᴛʜᴇ ᴅᴀᴛᴀʙᴀsᴇ!
-handlerCheckData.cantCreateUser=ᴜsᴇʀs ᴡɪᴛʜ ɪᴅ '%1' ᴄᴀɴɴᴏᴛ ʙᴇ ᴡʀɪᴛᴛᴇɴ ᴛᴏ ᴛʜᴇ ᴅᴀᴛᴀʙᴀsᴇ!
+bot/login/loadData.js
 
-# bot/handler/handlerEvents.js
+loadData.loadThreadDataSuccess=%1টি গ্রুপের ডেটা সফলভাবে লোড হয়েছে!
+loadData.loadUserDataSuccess=%1 জন ব্যবহারকারীর ডেটা সফলভাবে লোড হয়েছে!
+loadData.refreshingThreadData=গ্রুপগুলোর তথ্য আপডেট করা হচ্ছে...
+loadData.refreshThreadDataSuccess=%1টি গ্রুপের তথ্য সফলভাবে আপডেট হয়েছে!
+loadData.refreshThreadDataError=গ্রুপগুলোর তথ্য আপডেট করার সময় কিছু একটা ভুল হয়েছে!
+
+bot/login/loadScripts.js
+
+loadScripts.loadScriptsError=%1টি ফাইল লোড করার সময় একটি ত্রুটি হয়েছে:
+loadScripts.loadScriptsNotMatchOrigin=%1টি ফাইল GitHub প্রজেক্টের মূল ফাইলের সাথে মিলছে না। নিশ্চিত করুন যে এই কমান্ড ফাইলগুলো নির্ভরযোগ্য:
+loadScripts.NOT_FOUND=মূল সোর্স কোডে পাওয়া যায়নি:
+loadScripts.NOT_MATCH=মূল সোর্স কোডের সাথে মিল নেই:
+
+bot/login/socketIO.js
+
+socketIO.connected=Socket.IO সার্ভারের সাথে সংযুক্ত হয়েছে
+socketIO.error=Socket.IO সার্ভারের সাথে সংযোগ করার সময় একটি ত্রুটি ঘটেছে
+
+bot/handler/handlerCheckData.js
+
+handlerCheckData.cantCreateThread=ID '%1' এর গ্রুপের তথ্য ডেটাবেসে লেখা যাচ্ছে না!
+handlerCheckData.cantCreateUser=ID '%1' এর ব্যবহারকারীর তথ্য ডেটাবেসে লেখা যাচ্ছে না!
+
+bot/handler/handlerEvents.js
+
 handlerEvents.userBanned=━━━━━━━━━━━━━━━\n👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n━━━━━━━━━━━━━━━\n🚫 𝐁𝐀𝐍𝐍𝐄𝐃 𝐔𝐒𝐄𝐑\n❌ আপনি বট থেকে  ব্যান হয়েছেন!\n❌ আপনি বটের কোনো কমান্ড ইউজ\n🥺 করতে পারবেন না।\n━━━━━━━━━━━━━━━\n📌 𝐑𝐞𝐚𝐬𝐨𝐧: %1\n» 📅 𝐃𝐚𝐭𝐞 & 𝗧𝗜𝗠𝗘: %2\n» 👤 𝐔𝐬𝐞𝐫 𝗜𝗗: %3\n━━━━━━━━━━━━━━━\n🧚‍♀️ 𝐍𝐈𝐉𝐇𝐔𝐌 𝐂𝐇𝐀𝐓𝐁𝐎𝐓\n━━━━━━━━━━━━━━━
 handlerEvents.threadBanned=━━━━━━━━━━━━━━━\n👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑\n━━━━━━━━━━━━━━━\n🚫 𝐁𝐀𝐍𝐍𝐄𝐃 𝐆𝐑𝐎𝐔𝐏\n❌ এই গ্রুপটি বট থেকে ব্যান হয়েছে!\n❌ আপনাদের বটের কোনো কমান্ড ইউজ\n🥺 করতে পারবেন না।\n━━━━━━━━━━━━━━━\n📌 𝐑𝐞𝐚𝐬𝐨𝐧: %1\n» 📅 𝐃𝐚𝐭𝐞 & 𝗧𝗜𝗠𝗘: %2\n» 👥 𝐓𝐡𝐫𝐞𝐚𝐝 𝗜𝗗: %3\n━━━━━━━━━━━━━━━\n🧚‍♀️ 𝐍𝐈𝐉𝐇𝐔𝐌 𝐂𝐇𝐀𝐓𝐁𝐎𝐓\n━━━━━━━━━━━━━━━
 handlerEvents.onlyAdminBox=🚫 𝗢𝗻𝗹𝘆 𝗠𝘆 𝗕𝗼𝘀𝘀 𝐒𝐈𝐘𝐀𝐌 তুই আবাল 🌚 সর এখান থেকে🙄🐸
 handlerEvents.onlyAdminBot=🚫 𝗢𝗻𝗹𝘆 𝗠𝘆 𝗕𝗼𝘀𝘀 𝐒𝐈𝐘𝐀𝐌 তুই আবাল 🌚 সর এখান থেকে🙄🐸
-handlerEvents.commandNotFound=🤷‍♂️ 𝗖𝗼𝗺𝗺𝗮𝗻𝗱 "%1" 𝗱𝗼𝗲𝘀 𝗻𝗼𝘁 𝗲𝘅𝗶𝘀𝘁, 𝘁𝘆𝗽𝗲 %2𝗵𝗲𝗹𝗽 𝘁𝗼 𝘀𝗲𝗲 𝗮𝗹𝗹 𝗮𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲 𝗰𝗼𝗺𝗺𝗮𝗻𝗱𝘀 📜
-handlerEvents.commandNotFound2=🤷‍♂️ 𝗧𝗵𝗲 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 𝘆𝗼𝘂 𝗮𝗿𝗲 𝘂𝘀𝗶𝗻𝗴 𝗱𝗼𝗲𝘀 𝗻𝗼𝘁 𝗲𝘅𝗶𝘀𝘁, 𝘁𝘆𝗽𝗲 %1𝗵𝗲𝗹𝗽 𝘁𝗼 𝘀𝗲𝗲 𝗮𝗹𝗹 𝗮𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲 𝗰𝗼𝗺𝗺𝗮𝗻𝗱𝘀 📜
-handlerEvents.commandSyntaxError=⚠️ 𝗧𝗵𝗲 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 𝘆𝗼𝘂 𝗮𝗿𝗲 𝘂𝘀𝗶𝗻𝗴 𝗶𝘀 𝘄𝗿𝗼𝗻𝗴 𝘀𝘆𝗻𝘁𝗮𝘅! 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝘆𝗽𝗲 %1𝗵𝗲𝗹𝗽 %2 𝘁𝗼 𝘀𝗲𝗲 𝘁𝗵𝗲 𝗱𝗲𝘁𝗮𝗶𝗹𝘀 🛠️
-handlerEvents.commandNotFoundWithSuggestion=🤷‍♂️ 𝗖𝗼𝗺𝗺𝗮𝗻𝗱 "%1" 𝗱𝗼𝗲𝘀 𝗻𝗼𝘁 𝗲𝘅𝗶𝘀𝘁.\n💡 𝗗𝗶𝗱 𝘆𝗼𝘂 𝗺𝗲𝗮𝗻: %3?\n\n👉 𝗧𝘆𝗽𝗲 %2𝗵𝗲𝗹𝗽 𝘁𝗼 𝘀𝗲𝗲 𝗮𝗹𝗹 𝗮𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲 𝗰𝗼𝗺𝗺𝗮𝗻𝗱𝘀 📜
-handlerEvents.onlyPrefix=🤖 𝗧𝗵𝗮𝘁'𝘀 𝗷𝘂𝘀𝘁 𝗺𝘆 𝗽𝗿𝗲𝗳𝗶𝘅! 𝗧𝘆𝗽𝗲 %1𝗵𝗲𝗹𝗽 𝘁𝗼 𝘀𝗲𝗲 𝗮𝗹𝗹 𝗮𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲 𝗰𝗼𝗺𝗺𝗮𝗻𝗱𝘀 ✨
+handlerEvents.commandNotFound=🤷‍♂️ কমান্ড "%1" পাওয়া যায়নি, সব উপলব্ধ কমান্ড দেখতে %2help লিখুন 📜
+handlerEvents.commandNotFound2=🤷‍♂️ আপনি যে কমান্ডটি ব্যবহার করছেন সেটি পাওয়া যায়নি, সব উপলব্ধ কমান্ড দেখতে %1help লিখুন 📜
+handlerEvents.commandSyntaxError=⚠️ আপনি যে কমান্ডটি ব্যবহার করছেন তার সিনট্যাক্স ভুল! বিস্তারিত দেখতে %1help %2 লিখুন 🛠️
+handlerEvents.commandNotFoundWithSuggestion=🤷‍♂️ কমান্ড "%1" পাওয়া যায়নি।\n💡 আপনি কি %3 বোঝাতে চেয়েছেন?\n\n👉 সব উপলব্ধ কমান্ড দেখতে %2help লিখুন 📜
+handlerEvents.onlyPrefix=🤖 এটি শুধু আমার Prefix! সব উপলব্ধ কমান্ড দেখতে %1help লিখুন ✨
 handlerEvents.onlyAdmin=🚫 𝗢𝗻𝗹𝘆 𝗠𝘆 𝗕𝗼𝘀𝘀 𝐒𝐈𝐘𝐀𝐌 তুই আবাল 🌚 সর এখান থেকে🙄🐸
 handlerEvents.onlyAdminToUseOnReply=🚫 𝗢𝗻𝗹𝘆 𝗠𝘆 𝗕𝗼𝘀𝘀 𝐒𝐈𝐘𝐀𝐌 তুই আবাল 🌚 সর এখান থেকে🙄🐸
 handlerEvents.onlyAdminToUseOnReaction=🚫 𝗢𝗻𝗹𝘆 𝗠𝘆 𝗕𝗼𝘀𝘀 𝐒𝐈𝐘𝐀𝐌 তুই আবাল 🌚 সর এখান থেকে🙄🐸
 handlerEvents.onlyAdminBot2=🚫 𝗢𝗻𝗹𝘆 𝗠𝘆 𝗕𝗼𝘀𝘀 𝐒𝐈𝐘𝐀𝐌 তুই আবাল 🌚 সর এখান থেকে🙄🐸
 handlerEvents.onlyAdminBot2ToUseOnReply=🚫 𝗢𝗻𝗹𝘆 𝗠𝘆 𝗕𝗼𝘀𝘀 𝐒𝐈𝐘𝐀𝐌 তুই আবাল 🌚 সর এখান থেকে🙄🐸
 handlerEvents.onlyAdminBot2ToUseOnReaction=🚫 𝗢𝗻𝗹𝘆 𝗠𝘆 𝗕𝗼𝘀𝘀 𝐒𝐈𝐘𝐀𝐌 তুই আবাল 🌚 সর এখান থেকে🙄🐸
-handlerEvents.waitingForCommand=⏳ 𝗬𝗼𝘂 𝗮𝗿𝗲 𝗶𝗻 𝘁𝗵𝗲 𝘄𝗮𝗶𝘁𝗶𝗻𝗴 𝘁𝗶𝗺𝗲 𝘁𝗼 𝘂𝘀𝗲 𝘁𝗵𝗶𝘀 𝗰𝗼𝗺𝗺𝗮𝗻𝗱, 𝗽𝗹𝗲𝗮𝘀𝗲 𝗰𝗼𝗺𝗲 𝗯𝗮𝗰𝗸 𝗮𝗳𝘁𝗲𝗿 %1𝘀 ⏱️
-handlerEvents.errorOccurred=❌ [ %1 ]\n⚠️ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱 𝗮𝘁 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 "%2"\n\n%3
-handlerEvents.errorOccurred2=❌ [ %1 ]\n⚠️ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱 𝗮𝘁 𝗼𝗻𝗰𝗵𝗮𝘁 𝗶𝗻 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 "%2"\n\n%3
-handlerEvents.errorOccurred3=❌ [ %1 ]\n⚠️ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱 𝘄𝗵𝗲𝗻 𝗲𝘅𝗲𝗰𝘂𝘁𝗶𝗻𝗴 𝗼𝗻𝗿𝗲𝗽𝗹𝘆 𝗮𝘁 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 "%2"\n\n%3
-handlerEvents.errorOccurred4=❌ [ %1 ]\n⚠️ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱 𝘄𝗵𝗲𝗻 𝗲𝘅𝗲𝗰𝘂𝘁𝗶𝗻𝗴 𝗼𝗻𝗿𝗲𝗮𝗰𝘁𝗶𝗼𝗻 𝗮𝘁 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 "%2"\n\n%3
-handlerEvents.errorOccurred5=❌ [ %1 ]\n⚠️ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱 𝘄𝗵𝗲𝗻 𝗲𝘅𝗲𝗰𝘂𝘁𝗶𝗻𝗴 𝗼𝗻𝗲𝘃𝗲𝗻𝘁 𝗮𝘁 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 "%2"\n\n%3
-handlerEvents.errorOccurred6=❌ [ %1 ]\n⚠️ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱 𝘄𝗵𝗲𝗻 𝗲𝘅𝗲𝗰𝘂𝘁𝗶𝗻𝗴 𝗼𝗻𝗲𝘃𝗲𝗻𝘁 𝗮𝘁 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 "%2"\n\n%3
-handlerEvents.errorOccurred7=❌ [ %1 ]\n⚠️ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱 𝘄𝗵𝗲𝗻 𝗲𝘅𝗲𝗰𝘂𝘁𝗶𝗻𝗴 𝗼𝗻𝗮𝗻𝘆𝗲𝘃𝗲𝗻𝘁 𝗮𝘁 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 "%2"\n\n%3
-handlerEvents.cannotFindCommandName=❌ 𝗖𝗮𝗻𝗻𝗼𝘁 𝗳𝗶𝗻𝗱 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 𝗻𝗮𝗺𝗲 𝘁𝗼 𝗲𝘅𝗲𝗰𝘂𝘁𝗲 𝘁𝗵𝗶𝘀 𝗿𝗲𝗽𝗹𝘆! 🤷‍♂️
-handlerEvents.cannotFindCommand=❌ 𝗖𝗮𝗻𝗻𝗼𝘁 𝗳𝗶𝗻𝗱 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 "%1" 𝘁𝗼 𝗲𝘅𝗲𝗰𝘂𝘁𝗲 𝘁𝗵𝗶𝘀 𝗿𝗲𝗽𝗹𝘆! 🔍
+handlerEvents.waitingForCommand=⏳ এই কমান্ডটি ব্যবহার করার জন্য আপনাকে অপেক্ষা করতে হবে, অনুগ্রহ করে %1s পরে আবার চেষ্টা করুন ⏱️
+handlerEvents.errorOccurred=❌ [ %1 ]\n⚠️ কমান্ড "%2" চালানোর সময় একটি ত্রুটি ঘটেছে\n\n%3
+handlerEvents.errorOccurred2=❌ [ %1 ]\n⚠️ অনচ্যাট কমান্ড "%2" চালানোর সময় একটি ত্রুটি ঘটেছে\n\n%3
+handlerEvents.errorOccurred3=❌ [ %1 ]\n⚠️ কমান্ড "%2" এর OnReply চালানোর সময় একটি ত্রুটি ঘটেছে\n\n%3
+handlerEvents.errorOccurred4=❌ [ %1 ]\n⚠️ কমান্ড "%2" এর OnReaction চালানোর সময় একটি ত্রুটি ঘটেছে\n\n%3
+handlerEvents.errorOccurred5=❌ [ %1 ]\n⚠️ কমান্ড "%2" এর OnEvent চালানোর সময় একটি ত্রুটি ঘটেছে\n\n%3
+handlerEvents.errorOccurred6=❌ [ %1 ]\n⚠️ কমান্ড "%2" এর OnEvent চালানোর সময় একটি ত্রুটি ঘটেছে\n\n%3
+handlerEvents.errorOccurred7=❌ [ %1 ]\n⚠️ কমান্ড "%2" এর যেকোনো ইভেন্ট চালানোর সময় একটি ত্রুটি ঘটেছে\n\n%3
+handlerEvents.cannotFindCommandName=❌ এই রিপ্লাইটি চালানোর জন্য কমান্ডের নাম খুঁজে পাওয়া যাচ্ছে না! 🤷‍♂️
+handlerEvents.cannotFindCommand=❌ এই রিপ্লাইটি চালানোর জন্য কমান্ড "%1" খুঁজে পাওয়া যাচ্ছে না! 🔍
 
-# bot/autoUptime.js
-autoUptime.autoUptimeTurnedOn=ᴀᴜᴛᴏᴜᴘᴛɪᴍᴇ ᴍᴏᴅᴇ ᴛᴜʀɴᴇᴅ ᴏɴ
+bot/autoUptime.js
 
-# database/controller/index.js
-indexController.connectingMongoDB=ᴄᴏɴɴᴇᴄᴛɪɴɢ ᴀ ᴍᴏɴɢᴏᴅʙ ᴅᴀᴛᴀʙᴀsᴇ
-indexController.connectMongoDBSuccess=Successfᴜʟʟʏ ᴄᴏɴɴᴇᴄᴛᴇᴅ ᴍᴏɴɢᴏᴅʙ ᴅᴀᴛᴀʙᴀsᴇ!
-indexController.connectMongoDBError=ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜᴇɴ ᴄᴏɴɴᴇᴄᴛɪɴɢ ᴛʜᴇ ᴍᴏɴɢᴏᴅʙ ᴅᴀᴛᴀʙᴀsᴇ:
-indexController.connectingMySQL=ᴄᴏɴɴᴇᴄᴛɪɴɢ ᴀ sǝᴛᴛʟᴇ ᴅᴀᴛᴀʙᴀsᴇ
-indexController.connectMySQLSuccess=Successfᴜʟʟʏ ᴄᴏɴɴᴇᴄᴛᴇᴅ sǝᴛᴛʟᴇ ᴅᴀᴛᴀʙᴀsᴇ!
-indexController.connectMySQLError=ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜᴇɴ ᴄᴏɴɴᴇᴄᴛɪɴɢ ᴛʜᴇ sǝᴛᴛʟᴇ ᴅᴀᴛᴀʙᴀsᴇ:
+autoUptime.autoUptimeTurnedOn=অটোআপটাইম মোড চালু করা হয়েছে
 
-# updater.js
-updater.updateTooFast=ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ ᴀᴛ ʟᴇᴀsᴛ 5 ᴍɪɴᴜᴛᴇs ᴀғᴛᴇʀ ᴛʜᴇ ʟᴀᴛᴇsᴛ ᴄᴏᴍᴍɪᴛ ᴛᴏ ᴜᴘᴅᴀᴛᴇ ᴡɪᴛʜᴏᴜᴛ ᴇʀʀᴏʀ, %1 ᴍɪɴᴜᴛᴇs %2 sᴇᴄᴏɴᴅs ʟᴇғᴛ
-updater.latestVersion=Yᴏᴜ ᴀʀᴇ ᴜsɪɴɢ ᴛʜᴇ ʟᴀᴛᴇsᴛ ᴠᴇʀsɪᴏɴ
-updater.cantFindVersion=Yᴏᴜ ᴀʀᴇ ᴜsɪɴɢ ᴀɴ ᴜɴᴅᴇғɪɴᴇᴅ ᴠᴇʀsɪᴏɴ (%1), ᴘʟᴇᴀsᴇ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴘᴀᴄᴋᴀɢᴇ.ᴊsᴏɴ ғɪʟᴇ ᴀɢᴀɪɴ
-updater.newVersions=Tʜᴇʀᴇ ᴀʀᴇ %1 ɴᴇᴡ ᴠᴇʀsɪᴏɴs ᴛᴏ ᴜᴘᴅᴀᴛᴇ, sᴛᴀʀᴛɪɴɢ ᴛᴏ ᴜᴘᴅᴀᴛᴇ...
-updater.updateSuccess=Uᴘᴅᴀᴛᴇ sᴜᴄᴄᴇssғᴜʟʟʏ%1
-updater.configChanged=Tʜᴇ %1 ʜᴀs ʙᴇᴇɴ ᴄʜᴀɴɢᴇᴅ, ᴘʟᴇᴀsᴇ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴄᴏɴғɪɢ.ᴊsᴏɴ ғɪʟᴇ ᴀɢᴀɪɴ
-updater.installingPackages=Iɴsᴛᴀʟʟɪɴɢ ᴅᴇᴘᴇɴᴅᴇɴcɪᴇs ғᴏʀ ʙᴏᴛ...
-updater.installSuccess=Iɴsᴛᴀʟʟᴇᴅ ᴅᴇᴘᴇɴᴅᴇɴcɪᴇs sᴜᴄᴄᴇssғᴜʟʟʏ, ʀᴇsᴛᴀʀᴛ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ᴜsᴇ ᴛʜᴇ ɴᴇᴡ ᴠᴇʀsɪᴏɴ
-updater.backupSuccess=Sᴜᴄᴄᴇssғᴜʟʟʏ ʙᴀᴄᴋᴇᴅ ᴜᴘ ᴄʜᴀɴɢᴇᴅ ғɪʟᴇs, sᴇᴇ ɪɴ ᴛʜᴇ %1 ғᴏʟᴅᴇʀ
-updater.restartToApply=. ʀᴇsᴛᴀʀᴛ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ᴀᴘᴘʟʏ ᴛʜᴇ ɴᴇᴡ ᴠᴇʀsɪᴏɴ
-updater.skipFile=Tʜᴇʀᴇ ɪs ᴀ ɴᴇᴡ ᴠᴇʀsɪᴏɴ ᴏғ ᴛʜᴇ %1 ғɪʟᴇ, ʙᴜᴛ ʏᴏᴜ ʜᴀᴠᴇ sᴋɪᴘᴘᴇᴅ ᴛʜɪs ғɪʟᴇ ᴅᴜʀɪɴɢ ᴛʜᴇ ᴜᴘᴅᴀᴛᴇ ᴘʀᴏᴄᴇss ᴡɪᴛʜ ᴛʜᴇ cᴏᴍᴍᴇɴᴛ %2 ɪɴ ᴛʜɪs ғɪʟᴇ
+database/controller/index.js
 
-# dashboard/routes/verifyfbid.js
-verifyfbid.sendCode=Yᴏᴜʀ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ ɪs:\n%1\nTʜᴇ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ ɪs ᴠᴀʟɪᴅ ғᴏʀ %2 ᴍɪɴᴜᴛᴇs
+indexController.connectingMongoDB=MongoDB ডেটাবেসের সাথে সংযোগ করা হচ্ছে
+indexController.connectMongoDBSuccess=MongoDB ডেটাবেসের সাথে সফলভাবে সংযুক্ত হয়েছে!
+indexController.connectMongoDBError=MongoDB ডেটাবেসের সাথে সংযোগ করার সময় একটি ত্রুটি ঘটেছে:
+indexController.connectingMySQL=SQLite ডেটাবেসের সাথে সংযোগ করা হচ্ছে
+indexController.connectMySQLSuccess=SQLite ডেটাবেসের সাথে সফলভাবে সংযুক্ত হয়েছে!
+indexController.connectMySQLError=SQLite ডেটাবেসের সাথে সংযোগ করার সময় একটি ত্রুটি ঘটেছে:
 
-# utils.js
-utils.errorOccurred=❌ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱:\n\n%1 ⚠️
+updater.js
 
-# for command
+updater.updateTooFast=সর্বশেষ কমিটের পর কোনো ত্রুটি ছাড়াই আপডেট করার জন্য অনুগ্রহ করে কমপক্ষে ৫ মিনিট অপেক্ষা করুন, আরও %1 মিনিট %2 সেকেন্ড বাকি
+updater.latestVersion=আপনি সর্বশেষ ভার্সন ব্যবহার করছেন
+updater.cantFindVersion=আপনি একটি অনির্ধারিত ভার্সন (%1) ব্যবহার করছেন, অনুগ্রহ করে আপনার package.json ফাইলটি আবার পরীক্ষা করুন
+updater.newVersions=আপডেট করার জন্য %1টি নতুন ভার্সন পাওয়া গেছে, আপডেট শুরু হচ্ছে...
+updater.updateSuccess=আপডেট সফলভাবে সম্পন্ন হয়েছে%1
+updater.configChanged=%1 পরিবর্তন করা হয়েছে, অনুগ্রহ করে আপনার config.json ফাইলটি আবার পরীক্ষা করুন
+updater.installingPackages=বটের জন্য প্রয়োজনীয় প্যাকেজ ইনস্টল করা হচ্ছে...
+updater.installSuccess=প্রয়োজনীয় প্যাকেজগুলো সফলভাবে ইনস্টল হয়েছে, নতুন ভার্সন ব্যবহার করতে বটটি রিস্টার্ট করুন
+updater.backupSuccess=পরিবর্তন করা ফাইলগুলোর ব্যাকআপ সফলভাবে নেওয়া হয়েছে, %1 ফোল্ডারে দেখুন
+updater.restartToApply=. নতুন ভার্সন কার্যকর করতে বটটি রিস্টার্ট করুন
+updater.skipFile=%1 ফাইলটির একটি নতুন ভার্সন রয়েছে, কিন্তু এই ফাইলের %2 কমেন্টের কারণে আপডেট প্রক্রিয়ার সময় আপনি ফাইলটি বাদ দিয়েছেন
+
+dashboard/routes/verifyfbid.js
+
+verifyfbid.sendCode=আপনার ভেরিফিকেশন কোড হলো:\n%1\nভেরিফিকেশন কোডটি %2 মিনিট পর্যন্ত কার্যকর থাকবে
+
+utils.js
+
+utils.errorOccurred=❌ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰ᴜʀʀᴇᴅ:\n\n%1 ⚠️
+
+for command
+
 command.restartedBot=🔄 𝗕𝗼𝘁 𝗵𝗮𝘀 𝗯𝗲𝗲𝗻 𝗿𝗲𝘀𝘁𝗮𝗿𝘁𝗲𝗱 𝘀𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆!👊
 
-# dashboard/app.js
-app.googleApiRefreshTokenExpired=ɢᴏᴏɢʟᴇ ᴀᴘɪ ʀᴇғʀᴇsʜ ᴛᴏᴋᴇɴ ʜᴀs ᴇxᴘɪʀᴇᴅ ᴏʀ bᴇᴇɴ ʀᴇᴠᴏᴋᴇᴅ, ᴘʟᴇᴀsᴇ ɢᴇᴛ ᴀ ɴᴇw ᴛᴏᴋᴇɴ ᴀᴛ https://developers.google.com/oauthplayground/
-app.tooManyRequests=ᴛᴏᴏ ᴍᴀɴʏ ʀᴇqᴜᴇsᴛs ɪɴ ᴛʜᴇ ʟᴀsᴛ mɪɴᴜᴛᴇ. ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ.
-app.notPermissionChangeFbstate=ʏᴏᴜ ᴅᴏ ɴᴏᴛ ʜᴀvᴇ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ ᴄʜᴀɴɢᴇ ꜰʙsᴛᴀᴛᴇ!
-app.notFoundFbstate=ᴘʟᴇᴀsᴇ ᴇɴᴛᴇʀ ꜰʙsᴛᴀᴛᴇ!
-app.changedFbstateSuccess=successfully ᴄʜᴀɴɢᴇᴅ ꜰʙsᴛᴀᴛᴇ!
-app.serverError=sᴇʀvᴇʀ ᴀɴ ᴇʀʀᴏʀ, ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ!
+dashboard/app.js
+
+app.googleApiRefreshTokenExpired=গুগল এপিআই রিফ্রেশ টোকেনের মেয়াদ শেষ হয়ে গেছে অথবা টোকেনটি বাতিল করা হয়েছে। অনুগ্রহ করে নতুন টোকেন সংগ্রহ করুন: https://developers.google.com/oauthplayground/
+app.tooManyRequests=গত এক মিনিটে অনেক বেশি রিকোয়েস্ট করা হয়েছে। অনুগ্রহ করে কিছুক্ষণ পরে আবার চেষ্টা করুন।
+app.notPermissionChangeFbstate=আপনার FBState পরিবর্তন করার অনুমতি নেই!
+app.notFoundFbstate=অনুগ্রহ করে FBState লিখুন!
+app.changedFbstateSuccess=FBState সফলভাবে পরিবর্তন করা হয়েছে!
+app.serverError=সার্ভারে একটি ত্রুটি হয়েছে, অনুগ্রহ করে কিছুক্ষণ পরে আবার চেষ্টা করুন!
