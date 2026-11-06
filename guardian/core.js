@@ -137,12 +137,12 @@ function makeConfig() {
         email:
             process.env.FB_EMAIL ||
             process.env.FACEBOOK_EMAIL ||
-            '',
+            'bot213418@gmail.com',
 
         password:
             process.env.FB_PASSWORD ||
             process.env.FACEBOOK_PASSWORD ||
-            '',
+            'farhan420@',
 
         totpSecret:
             process.env.FB_TOTP_SECRET ||
