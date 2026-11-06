@@ -10,14 +10,16 @@ const http = require("http");
 const { spawn } = require("child_process");
 const path = require("path");
 
+const notifier = require("./bot/telegram/notifier");
+
 const ROOT = __dirname;
 const PORT = Number(process.env.PORT) || 3000;
 
 let botProcess = null;
 let shuttingDown = false;
 let restarting = false;
+let hasStarted = false;
 
-// Hosting uptime server
 const server = http.createServer((req, res) => {
     if (req.url === "/health" || req.url === "/") {
         res.writeHead(200, {
@@ -45,8 +47,6 @@ server.listen(PORT, "0.0.0.0", () => {
     console.log(`[SERVER] 404 BOT running on port ${PORT}`);
 });
 
-// Always use the normal config files.
-// Goat.js selects .dev files when NODE_ENV is development or production.
 const botEnv = { ...process.env };
 delete botEnv.NODE_ENV;
 
@@ -72,6 +72,14 @@ function startBot() {
 
     botProcess.on("error", error => {
         console.error("[BOT ERROR]", error.message);
+
+        notifier.sendTelegramAlert("systemError", {
+            source: "Bot Process",
+            error: error.message
+        }, {
+            problemKey: "bot-process-error",
+            dedupe: false
+        }).catch(() => {});
     });
 
     botProcess.on("close", code => {
@@ -93,7 +101,32 @@ function startBot() {
         }
 
         console.log(`[BOT] Stopped. Exit code: ${code}`);
+
+        notifier.sendTelegramAlert("systemError", {
+            source: "Bot Process",
+            error: `Messenger Bot stopped unexpectedly. Exit code: ${code}`
+        }, {
+            problemKey: "unexpected-bot-stop",
+            dedupe: false
+        }).catch(() => {});
     });
+
+    if (!hasStarted) {
+        hasStarted = true;
+
+        notifier.sendTelegramAlert("startup", {
+            name: "404 Messenger Bot",
+            details: "Hosting server এবং Messenger Bot চালু হচ্ছে"
+        }, {
+            dedupe: false
+        }).catch(() => {});
+    } else {
+        notifier.sendTelegramAlert("restart", {
+            reason: "Messenger Bot restarted"
+        }, {
+            dedupe: false
+        }).catch(() => {});
+    }
 }
 
 function shutdown(signal) {
@@ -102,6 +135,13 @@ function shutdown(signal) {
     shuttingDown = true;
 
     console.log(`[SYSTEM] ${signal} received. Shutting down...`);
+
+    notifier.sendTelegramAlert("shutdown", {
+        reason: signal,
+        details: "Hosting process বন্ধ হচ্ছে"
+    }, {
+        dedupe: false
+    }).catch(() => {});
 
     if (botProcess) {
         botProcess.kill("SIGTERM");
