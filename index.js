@@ -1,385 +1,123 @@
-
 "use strict";
 
 /*
+ * 404 BOT
+ * Author: Siyam Hasan
  * Messenger Bot Launcher
- * Author: Siyam
- * Project: 404 BOT
  */
 
-const fs = require("fs");
+const http = require("http");
+const { spawn } = require("child_process");
 const path = require("path");
 
-process.env.BLUEBIRD_W_FORGOTTEN_RETURN = "0";
-
 const ROOT = __dirname;
-const NODE_ENV = process.env.NODE_ENV || "production";
-const IS_DEVELOPMENT = NODE_ENV === "development";
+const PORT = Number(process.env.PORT) || 3000;
 
-// ----------------------------------------
-// CONFIG FILE RESOLVER
-// ----------------------------------------
+let botProcess = null;
+let shuttingDown = false;
+let restarting = false;
 
-function resolveFile(name, extension) {
-    const normalFile = path.join(
-        ROOT,
-        `${name}.${extension}`
-    );
+// Hosting uptime server
+const server = http.createServer((req, res) => {
+    if (req.url === "/health" || req.url === "/") {
+        res.writeHead(200, {
+            "Content-Type": "application/json"
+        });
 
-    const developmentFile = path.join(
-        ROOT,
-        `${name}.dev.${extension}`
-    );
+        res.end(JSON.stringify({
+            status: "running",
+            name: "404 BOT",
+            author: "Siyam Hasan",
+            uptime: process.uptime()
+        }));
 
-    if (
-        IS_DEVELOPMENT &&
-        fs.existsSync(developmentFile)
-    ) {
-        return developmentFile;
+        return;
     }
 
-    return normalFile;
-}
+    res.writeHead(404, {
+        "Content-Type": "text/plain"
+    });
 
-const dirConfig = resolveFile("config", "json");
-const dirConfigCommands = resolveFile("configCommands", "json");
-const dirAccount = path.join(ROOT, "account.txt");
+    res.end("Not Found");
+});
 
-// ----------------------------------------
-// JSON VALIDATION
-// ----------------------------------------
+server.listen(PORT, "0.0.0.0", () => {
+    console.log(`[SERVER] 404 BOT running on port ${PORT}`);
+});
 
-function readJSON(filePath) {
-    if (!fs.existsSync(filePath)) {
-        throw new Error(
-            `Required file not found: ${path.basename(filePath)}`
-        );
-    }
+// Always use the normal config files.
+// Goat.js selects .dev files when NODE_ENV is development or production.
+const botEnv = { ...process.env };
+delete botEnv.NODE_ENV;
 
-    try {
-        return JSON.parse(
-            fs.readFileSync(filePath, "utf8")
-        );
-    } catch (error) {
-        throw new Error(
-            `${path.basename(filePath)}: ${error.message}`
-        );
-    }
-}
+function startBot() {
+    if (shuttingDown || restarting) return;
 
-let config;
-let configCommands;
+    console.log("--------------------------------");
+    console.log("        404 BOT");
+    console.log("   Author: Siyam Hasan");
+    console.log("--------------------------------");
+    console.log("[BOT] Starting Messenger Bot...");
 
-try {
-    config = readJSON(dirConfig);
-    configCommands = readJSON(dirConfigCommands);
-} catch (error) {
-    console.error("[CONFIG ERROR]", error.message);
-    process.exit(1);
-}
-
-// ----------------------------------------
-// CONFIG NORMALIZATION
-// ----------------------------------------
-
-if (
-    config.whiteListMode &&
-    Array.isArray(config.whiteListMode.whiteListIds)
-) {
-    config.whiteListMode.whiteListIds =
-        config.whiteListMode.whiteListIds.map(String);
-}
-
-configCommands.commandBanned ||= {};
-configCommands.envGlobal ||= {};
-configCommands.envCommands ||= {};
-configCommands.envEvents ||= {};
-
-// ----------------------------------------
-// GLOBAL GOATBOT
-// ----------------------------------------
-
-global.GoatBot = {
-    startTime: Date.now(),
-
-    commands: new Map(),
-    eventCommands: new Map(),
-
-    commandFilesPath: [],
-    eventCommandsFilesPath: [],
-
-    aliases: new Map(),
-
-    onFirstChat: [],
-    onChat: [],
-    onEvent: [],
-    onReply: new Map(),
-    onReaction: new Map(),
-    onAnyEvent: [],
-
-    config,
-    configCommands,
-
-    envCommands: {},
-    envEvents: {},
-    envGlobal: {},
-
-    reLoginBot: function () {},
-
-    Listening: null,
-    oldListening: [],
-
-    callbackListenTime: {},
-    storage5Message: [],
-
-    fcaApi: null,
-    botID: null
-};
-
-// ----------------------------------------
-// GLOBAL DATABASE
-// ----------------------------------------
-
-global.db = {
-    allThreadData: [],
-    allUserData: [],
-    allDashBoardData: [],
-    allGlobalData: [],
-
-    threadModel: null,
-    userModel: null,
-    dashboardModel: null,
-    globalModel: null,
-
-    threadsData: null,
-    usersData: null,
-    dashBoardData: null,
-    globalData: null,
-
-    receivedTheFirstMessage: {}
-};
-
-// ----------------------------------------
-// GLOBAL CLIENT
-// ----------------------------------------
-
-global.client = {
-    dirConfig,
-    dirConfigCommands,
-    dirAccount,
-
-    countDown: {},
-    cache: {},
-
-    database: {
-        creatingThreadData: [],
-        creatingUserData: [],
-        creatingDashBoardData: [],
-        creatingGlobalData: []
-    },
-
-    commandBanned: configCommands.commandBanned
-};
-
-// ----------------------------------------
-// GLOBAL UTILS
-// ----------------------------------------
-
-const utils = require("./utils.js");
-
-global.utils = utils;
-
-// ----------------------------------------
-// GLOBAL TEMP
-// ----------------------------------------
-
-global.temp = {
-    createThreadData: [],
-    createUserData: [],
-
-    createThreadDataError: [],
-
-    filesOfGoogleDrive: {
-        arraybuffer: {},
-        stream: {},
-        fileNames: {}
-    },
-
-    contentScripts: {
-        cmds: {},
-        events: {}
-    }
-};
-
-// ----------------------------------------
-// CONFIG RELOAD
-// ----------------------------------------
-
-function watchConfig(filePath, property, label) {
-    fs.watchFile(
-        filePath,
+    botProcess = spawn(
+        process.execPath,
+        [path.join(ROOT, "Goat.js")],
         {
-            interval: 1000
-        },
-        (current, previous) => {
-            if (
-                current.mtimeMs === previous.mtimeMs
-            ) {
-                return;
-            }
-
-            try {
-                const updated = readJSON(filePath);
-
-                if (property === "config") {
-                    if (
-                        updated.whiteListMode &&
-                        Array.isArray(
-                            updated.whiteListMode.whiteListIds
-                        )
-                    ) {
-                        updated.whiteListMode.whiteListIds =
-                            updated.whiteListMode.whiteListIds.map(String);
-                    }
-                }
-
-                global.GoatBot[property] = updated;
-
-                if (property === "configCommands") {
-                    global.GoatBot.envGlobal =
-                        updated.envGlobal || {};
-
-                    global.GoatBot.envCommands =
-                        updated.envCommands || {};
-
-                    global.GoatBot.envEvents =
-                        updated.envEvents || {};
-
-                    global.client.commandBanned =
-                        updated.commandBanned || {};
-                }
-
-                console.log(
-                    `[CONFIG] ${label} reloaded successfully.`
-                );
-            } catch (error) {
-                console.error(
-                    `[CONFIG] ${label} reload failed:`,
-                    error.message
-                );
-            }
+            cwd: ROOT,
+            env: botEnv,
+            stdio: "inherit",
+            shell: false
         }
     );
+
+    botProcess.on("error", error => {
+        console.error("[BOT ERROR]", error.message);
+    });
+
+    botProcess.on("close", code => {
+        botProcess = null;
+
+        if (shuttingDown) return;
+
+        if (code === 2) {
+            console.log("[BOT] Restart requested.");
+
+            restarting = true;
+
+            setTimeout(() => {
+                restarting = false;
+                startBot();
+            }, 2000);
+
+            return;
+        }
+
+        console.log(`[BOT] Stopped. Exit code: ${code}`);
+    });
 }
 
-watchConfig(
-    dirConfig,
-    "config",
-    "config.json"
-);
+function shutdown(signal) {
+    if (shuttingDown) return;
 
-watchConfig(
-    dirConfigCommands,
-    "configCommands",
-    "configCommands.json"
-);
+    shuttingDown = true;
 
-// ----------------------------------------
-// LOAD ENV CONFIGURATION
-// ----------------------------------------
+    console.log(`[SYSTEM] ${signal} received. Shutting down...`);
 
-global.GoatBot.envGlobal =
-    configCommands.envGlobal || {};
-
-global.GoatBot.envCommands =
-    configCommands.envCommands || {};
-
-global.GoatBot.envEvents =
-    configCommands.envEvents || {};
-
-// ----------------------------------------
-// AUTO RESTART
-// ----------------------------------------
-
-const getText = utils.getText;
-
-if (config.autoRestart?.time) {
-    const restartTime = config.autoRestart.time;
-
-    if (
-        typeof restartTime === "number" &&
-        Number.isFinite(restartTime) &&
-        restartTime > 0
-    ) {
-        console.log(
-            `[AUTO RESTART] Restart scheduled in ${restartTime}ms.`
-        );
-
-        setTimeout(() => {
-            console.log("[AUTO RESTART] Restarting Messenger...");
-            process.exit(2);
-        }, restartTime);
-    } else if (
-        typeof restartTime === "string" &&
-        restartTime.trim()
-    ) {
-        try {
-            const cron = require("node-cron");
-
-            if (cron.validate(restartTime)) {
-                cron.schedule(restartTime, () => {
-                    console.log(
-                        "[AUTO RESTART] Restarting Messenger..."
-                    );
-
-                    process.exit(2);
-                });
-            }
-        } catch (error) {
-            console.error(
-                "[AUTO RESTART ERROR]",
-                error.message
-            );
-        }
+    if (botProcess) {
+        botProcess.kill("SIGTERM");
     }
+
+    server.close(() => {
+        console.log("[SERVER] Closed.");
+        process.exit(0);
+    });
+
+    setTimeout(() => {
+        process.exit(0);
+    }, 5000);
 }
 
-// ----------------------------------------
-// START MESSENGER LOGIN
-// ----------------------------------------
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
 
-console.log("----------------------------------------");
-console.log("       404 BOT - MESSENGER");
-console.log("       Author: Siyam");
-console.log("----------------------------------------");
-
-console.log("[MESSENGER] Loading login system...");
-
-try {
-    require("./bot/login/login.js");
-} catch (error) {
-    console.error(
-        "[MESSENGER LOGIN ERROR]",
-        error.stack || error.message
-    );
-
-    process.exit(1);
-}
-
-// ----------------------------------------
-// PROCESS ERROR HANDLING
-// ----------------------------------------
-
-process.on("unhandledRejection", error => {
-    console.error(
-        "[MESSENGER PROMISE ERROR]",
-        error?.stack || error
-    );
-});
-
-process.on("uncaughtException", error => {
-    console.error(
-        "[MESSENGER FATAL ERROR]",
-        error?.stack || error
-    );
-});
+startBot();
