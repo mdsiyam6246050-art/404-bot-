@@ -158,12 +158,12 @@
   },
   "telegram": {
     "enable": true,
-    "botToken": "",
+    "botToken": "9127355370:AAEzVVaq5DU7YkfZDfr8pJO-21PQZsYskqY",
     "adminUID": [
       "8442705758"
     ],
     "ownerUID": "8442705758",
-    "groupIDs": [],
+    "groupIDs": [1003920186554]  ,
     "notifications": {
       "enable": true,
       "startup": true,
