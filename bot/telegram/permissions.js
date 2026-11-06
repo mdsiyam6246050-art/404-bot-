@@ -18,49 +18,96 @@ class TelegramPermissions {
       .includes(String(telegramID));
   }
 
+  isOwner(telegramID) {
+    return (
+      String(this.tg.ownerUID || "") ===
+      String(telegramID)
+    );
+  }
+
   isAdmin(telegramID) {
     const id = String(telegramID);
 
-    if ((this.tg.adminUID || []).map(String).includes(id)) {
-      return true;
-    }
+    const telegramAdmins = (
+      this.tg.adminUID || []
+    ).map(String);
 
-    if (String(this.tg.ownerUID || "") === id) {
+    if (
+      telegramAdmins.includes(id) ||
+      this.isOwner(id)
+    ) {
       return true;
     }
 
     if (this.tg.useMessengerAdmin) {
       const messengerID = this.mappedMessengerID(id);
 
-      if (messengerID) {
-        const admins = (this.ms.adminBot || []).map(String);
-        const owner = String(this.ms.security?.ownerUID || "");
+      if (!messengerID) return false;
 
-        return admins.includes(messengerID) ||
-          owner === messengerID;
-      }
+      const messengerAdmins = (
+        this.ms.adminBot || []
+      ).map(String);
+
+      const messengerOwner = String(
+        this.ms.security?.ownerUID || ""
+      );
+
+      return (
+        messengerAdmins.includes(messengerID) ||
+        messengerOwner === messengerID
+      );
     }
 
     return false;
   }
 
-  isAllowed(update) {
-    const message = update.message || update.edited_message;
-    if (!message?.from || !message.chat) return false;
+  isAllowed(update = {}) {
+    const message =
+      update.message ||
+      update.edited_message ||
+      update.callback_query?.message;
 
-    const userID = String(message.from.id);
+    const user =
+      update.callback_query?.from ||
+      message?.from;
+
+    if (!message?.chat || !user?.id) {
+      return false;
+    }
+
+    const userID = String(user.id);
+    const chatID = String(message.chat.id);
     const chatType = message.chat.type;
 
-    if (this.isBlocked(userID)) return false;
+    if (this.isBlocked(userID)) {
+      return false;
+    }
 
     if (chatType === "private") {
-      if (this.tg.allowPrivate === false) return false;
-    } else if (chatType === "group" || chatType === "supergroup") {
-      if (this.tg.allowGroup === false) return false;
+      if (this.tg.allowPrivate === false) {
+        return false;
+      }
+    } else if (
+      chatType === "group" ||
+      chatType === "supergroup"
+    ) {
+      if (this.tg.allowGroup === false) {
+        return false;
+      }
 
-      if (this.tg.allowAllGroups !== true) {
-        const allowed = (this.tg.groupIDs || []).map(String);
-        if (!allowed.includes(String(message.chat.id))) return false;
+      const allowedGroups = (
+        this.tg.groupIDs || []
+      ).map(String);
+
+      const allowAllGroups =
+        this.tg.allowAllGroups === true ||
+        this.tg.security?.allowUnknownGroups === true;
+
+      if (
+        !allowAllGroups &&
+        !allowedGroups.includes(chatID)
+      ) {
+        return false;
       }
     } else {
       return false;
@@ -68,16 +115,24 @@ class TelegramPermissions {
 
     if (this.tg.useMessengerWhitelist) {
       const messengerID = this.mappedMessengerID(userID);
+
       const whitelist = (
         this.ms.whiteListMode?.whiteListIds || []
       ).map(String);
 
-      if (!messengerID || !whitelist.includes(messengerID)) {
+      if (
+        !messengerID ||
+        !whitelist.includes(messengerID)
+      ) {
         return false;
       }
     }
 
-    if (this.tg.adminOnly && !this.isAdmin(userID)) {
+    const adminOnly =
+      this.tg.adminOnly === true ||
+      this.tg.security?.adminOnly === true;
+
+    if (adminOnly && !this.isAdmin(userID)) {
       return false;
     }
 
