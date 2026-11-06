@@ -1,20 +1,40 @@
-
+# Node
 node_modules/
 npm-debug.log*
 yarn-debug.log*
+yarn-error.log*
 
+# Environment
 .env
 .env.*
 !.env.example
 
-account.txt
-account.dev.txt
+# Facebook session
+account.txt.bak
+account*.bak
 
-config.dev.json
-configCommands.dev.json
+# Guardian
+.guardian/
+guardian/*.tmp
+*.guardian.tmp
 
-*.sqlite
-*.sqlite-journal
+# Logs
+*.log
+logs/
 
+# Runtime
+tmp/
+temp/
+
+# OS
 .DS_Store
 Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Secrets
+*.pem
+*.key
+*.secret
