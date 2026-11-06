@@ -1,104 +1,191 @@
 /**
+ * @author siyam
+ * SIYAM HASAN - Messenger GoatBot Launcher
+ * Facebook Messenger Only
+ */
 
-- @author siyam
-- SIYAM HASAN - Messenger GoatBot Launcher
-- Facebook Messenger Only
-- 
-- Original source:
-- https://github.com/ntkhang03/Goat-Bot-V2
-  */
+'use strict';
 
-const { spawn } = require("child_process");
-const express = require("express");
-const log = require("./logger/log.js");
+const {
+    spawn
+} = require('child_process');
 
-const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const express =
+    require('express');
 
-let child = null;
-let restarting = false;
-let shuttingDown = false;
+const log =
+    require('./logger/log.js');
 
-// Start Messenger GoatBot
-function startProject() {
-if (shuttingDown) return;
+const app =
+    express();
 
-log.info("MESSENGER", "Starting GoatBot...");  
+const PORT =
+    Number(
+        process.env.PORT
+    ) || 3000;
 
-child = spawn(process.execPath, ["Goat.js"], {  
-    cwd: __dirname,  
-    stdio: "inherit",  
-    shell: false,  
-    env: process.env  
-});  
+let guardianProcess =
+    null;
 
-child.on("error", (error) => {  
-    log.error("MESSENGER", "Startup error: " + error.message);  
-    process.exitCode = 1;  
-});  
+let shuttingDown =
+    false;
 
-child.on("close", (code) => {  
-    log.info("MESSENGER", "Bot stopped with code: " + code);  
+function startGuardian() {
+    if (shuttingDown)
+        return;
 
-    if (shuttingDown) return;  
+    log.info(
+        'MESSENGER',
+        'Starting SIYAM Messenger Cookie Guardian...'
+    );
 
-    if (code === 2 && !restarting) {  
-        restarting = true;  
+    guardianProcess =
+        spawn(
+            process.execPath,
+            [
+                'guardian/start.js'
+            ],
+            {
+                cwd: __dirname,
 
-        log.info("MESSENGER", "Restarting GoatBot...");  
+                stdio: 'inherit',
 
-        setTimeout(() => {  
-            restarting = false;  
-            startProject();  
-        }, 3000);  
-    } else {  
-        process.exit(code || 0);  
-    }  
-});
+                shell: false,
 
+                env: {
+                    ...process.env
+                }
+            }
+        );
+
+    guardianProcess.on(
+        'error',
+        error => {
+            log.error(
+                'MESSENGER',
+                'Guardian startup error: ' +
+                error.message
+            );
+        }
+    );
+
+    guardianProcess.on(
+        'close',
+        code => {
+            guardianProcess =
+                null;
+
+            if (
+                shuttingDown
+            )
+                return;
+
+            log.info(
+                'MESSENGER',
+                'Guardian stopped with code: ' +
+                code
+            );
+
+            setTimeout(
+                startGuardian,
+                5000
+            );
+        }
+    );
 }
 
-// Uptime Server
-app.get("/", (req, res) => {
-res.status(200).send("SIYAM HASAN Messenger GoatBot is running!");
-});
+app.get(
+    '/',
+    (req, res) => {
+        res.status(
+            200
+        ).send(
+            'SIYAM HASAN Messenger GoatBot is running!'
+        );
+    }
+);
 
-// Health Check
-app.get("/health", (req, res) => {
-res.status(200).json({
-status: "OK",
-platform: "Facebook Messenger",
-uptime: process.uptime(),
-messenger:
-child && child.exitCode === null
-? "running"
-: "starting"
-});
-});
+app.get(
+    '/health',
+    (req, res) => {
+        res.status(
+            200
+        ).json({
+            status: 'OK',
 
-// Start Server
-const server = app.listen(PORT, "0.0.0.0", () => {
-log.info("SERVER", "Uptime server running on port " + PORT);
-startProject();
-});
+            platform:
+                'Facebook Messenger',
 
-// Graceful shutdown
+            guardian:
+                guardianProcess &&
+                guardianProcess.exitCode ===
+                    null
+                    ? 'running'
+                    : 'starting',
+
+            uptime:
+                process.uptime()
+        });
+    }
+);
+
+const server =
+    app.listen(
+        PORT,
+        '0.0.0.0',
+        () => {
+            log.info(
+                'SERVER',
+                'SIYAM uptime server running on port ' +
+                PORT
+            );
+
+            startGuardian();
+        }
+    );
+
 function shutdown() {
-if (shuttingDown) return;
+    if (
+        shuttingDown
+    )
+        return;
 
-shuttingDown = true;  
+    shuttingDown =
+        true;
 
-if (child && child.exitCode === null) {  
-    child.kill("SIGTERM");  
-}  
+    if (
+        guardianProcess &&
+        guardianProcess.exitCode ===
+            null
+    ) {
+        guardianProcess.kill(
+            'SIGTERM'
+        );
+    }
 
-server.close(() => {  
-    process.exit(0);  
-});  
+    server.close(
+        () => {
+            process.exit(
+                0
+            );
+        }
+    );
 
-setTimeout(() => process.exit(0), 5000).unref();
-
+    setTimeout(
+        () =>
+            process.exit(
+                0
+            ),
+        5000
+    ).unref();
 }
 
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
+process.on(
+    'SIGINT',
+    shutdown
+);
+
+process.on(
+    'SIGTERM',
+    shutdown
+);
