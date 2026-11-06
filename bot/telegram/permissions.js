@@ -6,61 +6,59 @@ class TelegramPermissions {
     this.ms = messengerConfig || {};
   }
 
-  mappedMessengerID(telegramID) {
-    return String(
-      this.tg.identityMap?.[String(telegramID)] || ""
-    );
-  }
-
-  isBlocked(telegramID) {
-    return (this.tg.blacklistUIDs || [])
-      .map(String)
-      .includes(String(telegramID));
-  }
-
+  // Telegram Owner check
   isOwner(telegramID) {
-    return (
-      String(this.tg.ownerUID || "") ===
-      String(telegramID)
-    );
+    const id = String(telegramID || "");
+    const ownerID = String(this.tg.ownerUID || "");
+
+    return Boolean(id && ownerID && id === ownerID);
   }
 
+  // Telegram Admin check
   isAdmin(telegramID) {
-    const id = String(telegramID);
+    const id = String(telegramID || "");
 
-    const telegramAdmins = (
-      this.tg.adminUID || []
-    ).map(String);
+    if (!id) return false;
 
-    if (
-      telegramAdmins.includes(id) ||
-      this.isOwner(id)
-    ) {
-      return true;
-    }
+    if (this.isOwner(id)) return true;
 
-    if (this.tg.useMessengerAdmin) {
-      const messengerID = this.mappedMessengerID(id);
+    const admins = Array.isArray(this.tg.adminUID)
+      ? this.tg.adminUID.map(String)
+      : [];
 
-      if (!messengerID) return false;
-
-      const messengerAdmins = (
-        this.ms.adminBot || []
-      ).map(String);
-
-      const messengerOwner = String(
-        this.ms.security?.ownerUID || ""
-      );
-
-      return (
-        messengerAdmins.includes(messengerID) ||
-        messengerOwner === messengerID
-      );
-    }
-
-    return false;
+    return admins.includes(id);
   }
 
+  // Telegram blacklist check
+  isBlocked(telegramID) {
+    const id = String(telegramID || "");
+
+    const blacklist = Array.isArray(this.tg.blacklistUIDs)
+      ? this.tg.blacklistUIDs.map(String)
+      : [];
+
+    return blacklist.includes(id);
+  }
+
+  // Telegram whitelist check
+  isWhitelisted(telegramID) {
+    const id = String(telegramID || "");
+
+    if (!id) return false;
+
+    // Admin and Owner always have access
+    if (this.isAdmin(id)) return true;
+
+    if (this.tg.useWhitelist !== true) return true;
+
+    const whitelist = Array.isArray(this.tg.whitelistUIDs)
+      ? this.tg.whitelistUIDs.map(String)
+      : [];
+
+    return whitelist.includes(id);
+  }
+
+  // Check whether a Telegram user can use the bot
   isAllowed(update = {}) {
     const message =
       update.message ||
@@ -71,70 +69,51 @@ class TelegramPermissions {
       update.callback_query?.from ||
       message?.from;
 
-    if (!message?.chat || !user?.id) {
-      return false;
-    }
+    if (!message?.chat || !user?.id) return false;
 
     const userID = String(user.id);
     const chatID = String(message.chat.id);
     const chatType = message.chat.type;
 
-    if (this.isBlocked(userID)) {
-      return false;
+    // Block blacklisted users
+    if (this.isBlocked(userID)) return false;
+
+    // Private chat permission
+    if (chatType === "private") {
+      if (this.tg.allowPrivate === false) return false;
     }
 
-    if (chatType === "private") {
-      if (this.tg.allowPrivate === false) {
-        return false;
-      }
-    } else if (
-      chatType === "group" ||
-      chatType === "supergroup"
-    ) {
-      if (this.tg.allowGroup === false) {
-        return false;
-      }
-
-      const allowedGroups = (
-        this.tg.groupIDs || []
-      ).map(String);
+    // Group and supergroup permission
+    else if (chatType === "group" || chatType === "supergroup") {
+      if (this.tg.allowGroup === false) return false;
 
       const allowAllGroups =
         this.tg.allowAllGroups === true ||
         this.tg.security?.allowUnknownGroups === true;
 
-      if (
-        !allowAllGroups &&
-        !allowedGroups.includes(chatID)
-      ) {
-        return false;
+      if (!allowAllGroups) {
+        const allowedGroups = Array.isArray(this.tg.groupIDs)
+          ? this.tg.groupIDs.map(String)
+          : [];
+
+        if (!allowedGroups.includes(chatID)) return false;
       }
-    } else {
+    }
+
+    // Reject unsupported chat types
+    else {
       return false;
     }
 
-    if (this.tg.useMessengerWhitelist) {
-      const messengerID = this.mappedMessengerID(userID);
+    // Whitelist permission
+    if (!this.isWhitelisted(userID)) return false;
 
-      const whitelist = (
-        this.ms.whiteListMode?.whiteListIds || []
-      ).map(String);
-
-      if (
-        !messengerID ||
-        !whitelist.includes(messengerID)
-      ) {
-        return false;
-      }
-    }
-
+    // Admin-only mode
     const adminOnly =
       this.tg.adminOnly === true ||
       this.tg.security?.adminOnly === true;
 
-    if (adminOnly && !this.isAdmin(userID)) {
-      return false;
-    }
+    if (adminOnly && !this.isAdmin(userID)) return false;
 
     return true;
   }
