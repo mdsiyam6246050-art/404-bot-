@@ -1,3 +1,4 @@
+
 "use strict";
 
 const http = require("http");
@@ -7,106 +8,111 @@ const path = require("path");
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = "0.0.0.0";
 
-let botProcess = null;
+let guardianProcess = null;
 let shuttingDown = false;
+let restartTimer = null;
+const startedAt = Date.now();
 
-function startBot() {
+function startGuardian() {
   if (shuttingDown) return;
 
-  const goatPath = path.join(__dirname, "Goat.js");
+  console.log("[404 BOT] Starting Facebook Guardian...");
 
-  console.log("[SIYAM] Starting Goat.js...");
-
-  botProcess = spawn(
+  guardianProcess = spawn(
     process.execPath,
-    [goatPath],
+    [path.join(__dirname, "guardian", "start.js")],
     {
       cwd: __dirname,
       stdio: ["inherit", "pipe", "pipe"],
-      env: process.env
+      env: process.env,
+      shell: false
     }
   );
 
-  botProcess.stdout.on("data", (data) => {
-    process.stdout.write(`[GOAT] ${data}`);
+  guardianProcess.stdout.on("data", data => {
+    process.stdout.write(data);
   });
 
-  botProcess.stderr.on("data", (data) => {
-    process.stderr.write(`[GOAT ERROR] ${data}`);
+  guardianProcess.stderr.on("data", data => {
+    process.stderr.write(data);
   });
 
-  botProcess.on("error", (error) => {
-    console.error("[SIYAM] Failed to start Goat.js:", error);
+  guardianProcess.on("error", error => {
+    console.error("[404 BOT] Guardian error:", error.message);
   });
 
-  botProcess.on("exit", (code, signal) => {
+  guardianProcess.on("close", (code, signal) => {
     console.log(
-      `[SIYAM] Goat.js stopped. code=${code}, signal=${signal}`
+      `[404 BOT] Guardian stopped. Code=${code}, Signal=${signal}`
     );
 
-    botProcess = null;
+    guardianProcess = null;
 
     if (shuttingDown) return;
 
-    setTimeout(() => {
-      startBot();
+    restartTimer = setTimeout(() => {
+      restartTimer = null;
+      startGuardian();
     }, 5000);
   });
 }
 
-/*
- * Render health server
- */
 const server = http.createServer((req, res) => {
-  if (req.url === "/health" || req.url === "/") {
-    res.writeHead(200, {
-      "Content-Type": "application/json; charset=utf-8",
+  const pathname = new URL(
+    req.url,
+    `http://${req.headers.host || "localhost"}`
+  ).pathname;
+
+  if (pathname === "/" || pathname === "/health") {
+    const running =
+      guardianProcess !== null &&
+      guardianProcess.exitCode === null;
+
+    res.writeHead(running ? 200 : 503, {
+      "Content-Type": "application/json",
       "Cache-Control": "no-store"
     });
 
-    res.end(
-      JSON.stringify({
-        status: "ok",
-        bot: "SIYAM",
-        uptime: Math.floor(process.uptime()),
-        botRunning: Boolean(botProcess),
-        time: new Date().toISOString()
-      })
-    );
-
-    return;
+    return res.end(JSON.stringify({
+      service: "404-BOT",
+      status: running ? "running" : "starting",
+      guardian: running,
+      uptime: Math.floor(process.uptime()),
+      startedAt: new Date(startedAt).toISOString(),
+      time: new Date().toISOString()
+    }));
   }
 
   res.writeHead(404, {
-    "Content-Type": "application/json; charset=utf-8"
+    "Content-Type": "application/json"
   });
 
-  res.end(
-    JSON.stringify({
-      status: "not_found"
-    })
-  );
+  res.end(JSON.stringify({
+    status: "not_found"
+  }));
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`[RENDER] Health server listening on port ${PORT}`);
-  console.log(`[RENDER] Health URL: /health`);
+  console.log(`[RENDER] Server running on ${HOST}:${PORT}`);
+  console.log(`[RENDER] Health endpoint: /health`);
 
-  startBot();
+  startGuardian();
 });
 
-/*
- * Graceful shutdown
- */
 function shutdown(signal) {
   if (shuttingDown) return;
 
   shuttingDown = true;
 
-  console.log(`[SIYAM] ${signal} received. Shutting down...`);
+  console.log(`[404 BOT] ${signal} received.`);
 
-  if (botProcess) {
-    botProcess.kill("SIGTERM");
+  if (restartTimer) {
+    clearTimeout(restartTimer);
+    restartTimer = null;
+  }
+
+  if (guardianProcess && guardianProcess.exitCode === null) {
+    guardianProcess.kill("SIGTERM");
   }
 
   server.close(() => {
@@ -114,8 +120,11 @@ function shutdown(signal) {
   });
 
   setTimeout(() => {
+    if (guardianProcess && guardianProcess.exitCode === null) {
+      guardianProcess.kill("SIGKILL");
+    }
     process.exit(0);
-  }, 10000);
+  }, 10000).unref();
 }
 
 process.on("SIGTERM", () => shutdown("SIGTERM"));
