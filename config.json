@@ -7,7 +7,7 @@
     "proxy": null,
     "userAgent": "Mozilla/5.0 (Linux; Android 12; M2102J20SG) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Mobile Safari/537.36",
     "intervalGetNewCookie": 1440,
-    "notes": "Automatically retrieves new cookies every x minutes. Recommended: 1440 (1 day)."
+    "notes": "Facebook login credentials should preferably be supplied through hosting environment variables."
   },
 
   "antiInbox": true,
@@ -69,16 +69,16 @@
 
   "credentials": {
     "gmailAccount": {
-      "email": "botofnexxo@gmail.com",
-      "clientId": "848792512039-g3mlfd39p9ttu82ga4kahk6kadjr0hcp.apps.googleusercontent.com",
-      "clientSecret": "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",
-      "refreshToken": "1//04nBMNYnfbedsCgYIARAAGAQSNwF-L9IrmyZIKKZaDmN9aqXhIuO1wxk2jpkXPf3zuL_KN-IU99BNhW7eUGCFrDr0hJetNkBFExg",
+      "email": "",
+      "clientId": "",
+      "clientSecret": "",
+      "refreshToken": "",
       "apiKey": ""
     },
 
     "gRecaptcha": {
-      "siteKey": "6LfU0TUrAAAAAJVy_tm-q9xlEIEeyBK4N8VwuGdZ",
-      "secretKey": "6LfU0TUrAAAAAOR_CE7oZV-8Eo83LsJmb12-lWFb"
+      "siteKey": "",
+      "secretKey": ""
     }
   },
 
@@ -118,15 +118,15 @@
   },
 
   "autoRefreshFbstate": true,
-  "autoReloginWhenChangeAccount": false,
-  "autoRestartWhenListenMqttError": false,
+  "autoReloginWhenChangeAccount": true,
+  "autoRestartWhenListenMqttError": true,
 
   "restartListenMqtt": {
-    "enable": true,
-    "timeRestart": 3600000,
-    "delayAfterStopListening": 2000,
+    "enable": false,
+    "timeRestart": null,
+    "delayAfterStopListening": 3000,
     "logNoti": true,
-    "notes": "Restart listener every hour."
+    "notes": "Disabled: do not blindly restart MQTT every hour."
   },
 
   "notiWhenListenMqttError": {
@@ -177,7 +177,7 @@
     "selfListen": false,
     "selfListenEvent": true,
     "autoMarkDelivery": false,
-    "autoReconnect": false,
-    "notes": "Docs: https://github.com/ntkhang03/fb-chat-api/blob/master/DOCS.md#apisetoptionsoptions"
+    "autoReconnect": true,
+    "notes": "Automatic reconnect enabled for long-running Messenger sessions."
   }
 }
