@@ -9,54 +9,44 @@
     "intervalGetNewCookie": 1440,
     "notes": "Facebook login credentials should preferably be supplied through hosting environment variables."
   },
-
   "antiInbox": true,
   "language": "en",
   "notesLanguage": "change language using ISO 639-1 code",
-
   "nickNameBot": "[ , ]𝐍𝐈𝐉𝐇𝐔𝐌-𝐂𝐇𝐀𝐓-𝐁𝐎𝐓",
-
   "prefix": ",",
-
   "adminOnly": {
     "enable": false,
     "ignoreCommand": []
   },
-
   "adminBot": [
     "61596102516084",
     "61592612064543"
   ],
-
   "security": {
     "enableOwnerLock": true,
     "ownerUID": "61596102516084",
     "ownerIndex": 0,
     "notes": "Do not change adminBot[0], bot will stop if modified"
   },
-
   "reactUnsend": {
     "enable": true,
     "onlyAdmin": true,
     "emojis": ["😹", "😾", "💋", "🫡"],
     "notes": "If enable = true, bot will unsend any message reacted with these emojis. If onlyAdmin = true, only adminBot IDs can trigger it."
   },
-
   "whiteListMode": {
     "enable": true,
     "whiteListIds": [
       "61596102516084",
       "61592612064543"
     ],
-    "notes": "If enabled, only IDs in whiteListIds can use the bot."
+    "notes": "If enabled, only IDs in whiteListIds can use the Messenger bot."
   },
-
   "whiteListModeThread": {
     "enable": false,
     "whiteListThreadIds": [],
     "notes": "If enabled, only threads in whiteListThreadIds can use the bot."
   },
-
   "database": {
     "type": "sqlite",
     "uriMongodb": "",
@@ -64,9 +54,7 @@
     "autoRefreshThreadInfoFirstTime": true,
     "notes": "Recommended using 'mongodb' or 'sqlite'."
   },
-
   "timeZone": "Asia/Dhaka",
-
   "credentials": {
     "gmailAccount": {
       "email": "",
@@ -75,19 +63,16 @@
       "refreshToken": "",
       "apiKey": ""
     },
-
     "gRecaptcha": {
       "siteKey": "",
       "secretKey": ""
     }
   },
-
   "dashBoard": {
     "enable": true,
     "expireVerifyCode": 300000,
     "port": 3001
   },
-
   "serverUptime": {
     "enable": false,
     "port": 3001,
@@ -97,30 +82,25 @@
       "verifyToken": ""
     }
   },
-
   "autoRestart": {
     "time": null,
     "notes": "Example: 60000 (1min), 3600000 (1hr), 0 0 * * * (daily)."
   },
-
   "autoUptime": {
     "enable": false,
     "timeInterval": 180,
     "url": "",
     "notes": "Time in seconds. Recommended using an uptime monitor."
   },
-
   "autoLoadScripts": {
     "enable": false,
     "ignoreCmds": "",
     "ignoreEvents": "",
     "notes": "Automatically reloads scripts if edited."
   },
-
   "autoRefreshFbstate": true,
   "autoReloginWhenChangeAccount": true,
   "autoRestartWhenListenMqttError": true,
-
   "restartListenMqtt": {
     "enable": false,
     "timeRestart": null,
@@ -128,7 +108,6 @@
     "logNoti": true,
     "notes": "Disabled: do not blindly restart MQTT every hour."
   },
-
   "notiWhenListenMqttError": {
     "notes": "Notification settings when Messenger MQTT stops listening.",
     "gmail": {
@@ -145,7 +124,6 @@
       "webhookUrl": ""
     }
   },
-
   "hideNotiMessage": {
     "commandNotFound": false,
     "adminOnly": false,
@@ -155,7 +133,6 @@
     "needRoleToUseCmdOnReply": false,
     "needRoleToUseCmdOnReaction": false
   },
-
   "logEvents": {
     "disableAll": false,
     "message": true,
@@ -167,7 +144,6 @@
     "typ": false,
     "presence": false
   },
-
   "optionsFca": {
     "forceLogin": true,
     "listenEvents": true,
@@ -179,50 +155,45 @@
     "autoMarkDelivery": false,
     "autoReconnect": true
   },
-
   "telegram": {
     "enable": true,
-
-    "botToken": "",
-
+    "botToken": "এখানে_BOTFATHER_থেকে_পাওয়া_TOKEN_বসাবে",
     "prefix": "!",
-
     "adminUID": [
-      "YOUR_TELEGRAM_USER_ID"
+      "এখানে_TELEGRAM_ADMIN_ID_বসাবে"
     ],
-
-    "ownerUID": "YOUR_TELEGRAM_USER_ID",
-
-    "groupIDs": [
-      "YOUR_TELEGRAM_GROUP_ID"
+    "ownerUID": "এখানে_TELEGRAM_OWNER_ID_বসাবে",
+    "whitelistUIDs": [
+      "এখানে_অনুমোদিত_TELEGRAM_USER_ID_বসাবে"
     ],
-
+    "useWhitelist": true,
+    "blacklistUIDs": [],
     "allowPrivate": true,
     "allowGroup": true,
-
-    "useMessengerAdmin": false,
-    "useMessengerWhitelist": false,
-
+    "allowAllGroups": true,
+    "groupIDs": [],
+    "adminOnly": false,
     "commandMode": "hybrid",
-
     "autoConvertCommands": true,
-
     "notifications": {
       "enable": true,
+      "startup": true,
+      "shutdown": true,
       "loginError": true,
       "logout": true,
       "cookieError": true,
       "listenerError": true,
       "commandError": true,
+      "eventError": true,
       "databaseError": true,
       "systemError": true,
+      "guardianError": true,
       "restart": true
     },
-
     "security": {
-      "adminOnly": true,
+      "adminOnly": false,
       "allowUnknownUsers": false,
-      "allowUnknownGroups": false
+      "allowUnknownGroups": true
     }
   }
 }
