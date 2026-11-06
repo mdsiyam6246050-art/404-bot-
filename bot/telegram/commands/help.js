@@ -2,7 +2,7 @@
 
 module.exports = {
   name: "help",
-  version: "1.0.0",
+  version: "1.0.1",
   author: "RJ SIYAM",
   description: "Show all Telegram commands",
   usage: "/help",
@@ -12,19 +12,36 @@ module.exports = {
   async execute(ctx) {
     const prefix = ctx.config.prefix || "!";
 
-    const commands = [...ctx.commands.values()]
-      .sort((a, b) => a.name.localeCompare(b.name));
+    const isAdmin = ctx.permissions.isAdmin(
+      ctx.user.id
+    );
 
-    const publicCommands = commands.filter(command => {
-      return Number(command.role || 0) === 0 ||
-        ctx.permissions.isAdmin(ctx.user.id);
+    const isOwner = ctx.permissions.isOwner(
+      ctx.user.id
+    );
+
+    const commands = [...ctx.commands.values()]
+      .sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+
+    const visibleCommands = commands.filter(command => {
+      const role = Number(command.role || 0);
+
+      if (role === 0) return true;
+      if (role === 1) return isAdmin;
+      if (role === 2) return isOwner;
+
+      return false;
     });
 
-    const list = publicCommands.map(command => {
+    const list = visibleCommands.map(command => {
       const role = Number(command.role || 0);
+
       const roleText =
         role === 2 ? "Owner" :
-        role === 1 ? "Admin" : "Everyone";
+        role === 1 ? "Admin" :
+        "Everyone";
 
       return (
         `${prefix}${command.name}\n` +
