@@ -4,7 +4,9 @@ const axios = require("axios");
 
 class TelegramAPI {
   constructor(token) {
-    if (!token) throw new Error("Telegram bot token missing.");
+    if (!token) {
+      throw new Error("Telegram bot token missing.");
+    }
 
     this.url = `https://api.telegram.org/bot${token}`;
   }
@@ -18,7 +20,8 @@ class TelegramAPI {
 
     if (!response.data.ok) {
       throw new Error(
-        response.data.description || "Telegram API request failed."
+        response.data.description ||
+        "Telegram API request failed."
       );
     }
 
@@ -36,7 +39,8 @@ class TelegramAPI {
       allowed_updates: [
         "message",
         "edited_message",
-        "callback_query"
+        "callback_query",
+        "my_chat_member"
       ]
     });
   }
@@ -46,6 +50,13 @@ class TelegramAPI {
       chat_id: chatId,
       text: String(text).slice(0, 4000),
       ...extra
+    });
+  }
+
+  answerCallbackQuery(callbackQueryId, text = "") {
+    return this.request("answerCallbackQuery", {
+      callback_query_id: callbackQueryId,
+      ...(text ? { text: String(text).slice(0, 200) } : {})
     });
   }
 
