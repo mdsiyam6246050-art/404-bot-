@@ -1,191 +1,122 @@
-/**
- * @author siyam
- * SIYAM HASAN - Messenger GoatBot Launcher
- * Facebook Messenger Only
+"use strict";
+
+const http = require("http");
+const { spawn } = require("child_process");
+const path = require("path");
+
+const PORT = Number(process.env.PORT) || 3000;
+const HOST = "0.0.0.0";
+
+let botProcess = null;
+let shuttingDown = false;
+
+function startBot() {
+  if (shuttingDown) return;
+
+  const goatPath = path.join(__dirname, "Goat.js");
+
+  console.log("[SIYAM] Starting Goat.js...");
+
+  botProcess = spawn(
+    process.execPath,
+    [goatPath],
+    {
+      cwd: __dirname,
+      stdio: ["inherit", "pipe", "pipe"],
+      env: process.env
+    }
+  );
+
+  botProcess.stdout.on("data", (data) => {
+    process.stdout.write(`[GOAT] ${data}`);
+  });
+
+  botProcess.stderr.on("data", (data) => {
+    process.stderr.write(`[GOAT ERROR] ${data}`);
+  });
+
+  botProcess.on("error", (error) => {
+    console.error("[SIYAM] Failed to start Goat.js:", error);
+  });
+
+  botProcess.on("exit", (code, signal) => {
+    console.log(
+      `[SIYAM] Goat.js stopped. code=${code}, signal=${signal}`
+    );
+
+    botProcess = null;
+
+    if (shuttingDown) return;
+
+    setTimeout(() => {
+      startBot();
+    }, 5000);
+  });
+}
+
+/*
+ * Render health server
  */
+const server = http.createServer((req, res) => {
+  if (req.url === "/health" || req.url === "/") {
+    res.writeHead(200, {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store"
+    });
 
-'use strict';
-
-const {
-    spawn
-} = require('child_process');
-
-const express =
-    require('express');
-
-const log =
-    require('./logger/log.js');
-
-const app =
-    express();
-
-const PORT =
-    Number(
-        process.env.PORT
-    ) || 3000;
-
-let guardianProcess =
-    null;
-
-let shuttingDown =
-    false;
-
-function startGuardian() {
-    if (shuttingDown)
-        return;
-
-    log.info(
-        'MESSENGER',
-        'Starting SIYAM Messenger Cookie Guardian...'
+    res.end(
+      JSON.stringify({
+        status: "ok",
+        bot: "SIYAM",
+        uptime: Math.floor(process.uptime()),
+        botRunning: Boolean(botProcess),
+        time: new Date().toISOString()
+      })
     );
 
-    guardianProcess =
-        spawn(
-            process.execPath,
-            [
-                'guardian/start.js'
-            ],
-            {
-                cwd: __dirname,
+    return;
+  }
 
-                stdio: 'inherit',
+  res.writeHead(404, {
+    "Content-Type": "application/json; charset=utf-8"
+  });
 
-                shell: false,
+  res.end(
+    JSON.stringify({
+      status: "not_found"
+    })
+  );
+});
 
-                env: {
-                    ...process.env
-                }
-            }
-        );
+server.listen(PORT, HOST, () => {
+  console.log(`[RENDER] Health server listening on port ${PORT}`);
+  console.log(`[RENDER] Health URL: /health`);
 
-    guardianProcess.on(
-        'error',
-        error => {
-            log.error(
-                'MESSENGER',
-                'Guardian startup error: ' +
-                error.message
-            );
-        }
-    );
+  startBot();
+});
 
-    guardianProcess.on(
-        'close',
-        code => {
-            guardianProcess =
-                null;
+/*
+ * Graceful shutdown
+ */
+function shutdown(signal) {
+  if (shuttingDown) return;
 
-            if (
-                shuttingDown
-            )
-                return;
+  shuttingDown = true;
 
-            log.info(
-                'MESSENGER',
-                'Guardian stopped with code: ' +
-                code
-            );
+  console.log(`[SIYAM] ${signal} received. Shutting down...`);
 
-            setTimeout(
-                startGuardian,
-                5000
-            );
-        }
-    );
+  if (botProcess) {
+    botProcess.kill("SIGTERM");
+  }
+
+  server.close(() => {
+    process.exit(0);
+  });
+
+  setTimeout(() => {
+    process.exit(0);
+  }, 10000);
 }
 
-app.get(
-    '/',
-    (req, res) => {
-        res.status(
-            200
-        ).send(
-            'SIYAM HASAN Messenger GoatBot is running!'
-        );
-    }
-);
-
-app.get(
-    '/health',
-    (req, res) => {
-        res.status(
-            200
-        ).json({
-            status: 'OK',
-
-            platform:
-                'Facebook Messenger',
-
-            guardian:
-                guardianProcess &&
-                guardianProcess.exitCode ===
-                    null
-                    ? 'running'
-                    : 'starting',
-
-            uptime:
-                process.uptime()
-        });
-    }
-);
-
-const server =
-    app.listen(
-        PORT,
-        '0.0.0.0',
-        () => {
-            log.info(
-                'SERVER',
-                'SIYAM uptime server running on port ' +
-                PORT
-            );
-
-            startGuardian();
-        }
-    );
-
-function shutdown() {
-    if (
-        shuttingDown
-    )
-        return;
-
-    shuttingDown =
-        true;
-
-    if (
-        guardianProcess &&
-        guardianProcess.exitCode ===
-            null
-    ) {
-        guardianProcess.kill(
-            'SIGTERM'
-        );
-    }
-
-    server.close(
-        () => {
-            process.exit(
-                0
-            );
-        }
-    );
-
-    setTimeout(
-        () =>
-            process.exit(
-                0
-            ),
-        5000
-    ).unref();
-}
-
-process.on(
-    'SIGINT',
-    shutdown
-);
-
-process.on(
-    'SIGTERM',
-    shutdown
-);
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
