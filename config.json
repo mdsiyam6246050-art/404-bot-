@@ -157,12 +157,12 @@
   },
   "telegram": {
     "enable": true,
-    "botToken": "এখানে_BOTFATHER_থেকে_পাওয়া_TOKEN_বসাবে",
-    "prefix": "!",
+    "botToken": "8841625220:AAG1AwH1X53hprHTh8YeQ2lwpTIK_KV-69U",
+    "prefix": "/",
     "adminUID": [
-      "এখানে_TELEGRAM_ADMIN_ID_বসাবে"
+      "8442705758"
     ],
-    "ownerUID": "এখানে_TELEGRAM_OWNER_ID_বসাবে",
+    "ownerUID": "8442705758",
     "whitelistUIDs": [
       "এখানে_অনুমোদিত_TELEGRAM_USER_ID_বসাবে"
     ],
