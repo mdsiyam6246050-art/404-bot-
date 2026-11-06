@@ -1,3 +1,4 @@
+
 {
   "facebookAccount": {
     "email": "",
@@ -31,7 +32,12 @@
   "reactUnsend": {
     "enable": true,
     "onlyAdmin": true,
-    "emojis": ["😹", "😾", "💋", "🫡"],
+    "emojis": [
+      "😹",
+      "😾",
+      "💋",
+      "🫡"
+    ],
     "notes": "If enable = true, bot will unsend any message reacted with these emojis. If onlyAdmin = true, only adminBot IDs can trigger it."
   },
   "whiteListMode": {
@@ -114,11 +120,6 @@
       "enable": false,
       "emailGetNoti": ""
     },
-    "telegram": {
-      "enable": false,
-      "botToken": "",
-      "chatId": ""
-    },
     "discordHook": {
       "enable": false,
       "webhookUrl": ""
@@ -157,28 +158,18 @@
   },
   "telegram": {
     "enable": true,
-    "botToken": "8841625220:AAG1AwH1X53hprHTh8YeQ2lwpTIK_KV-69U",
-    "prefix": "/",
+    "botToken": "",
     "adminUID": [
       "8442705758"
     ],
     "ownerUID": "8442705758",
-    "whitelistUIDs": [
-      "এখানে_অনুমোদিত_TELEGRAM_USER_ID_বসাবে"
-    ],
-    "useWhitelist": true,
-    "blacklistUIDs": [],
-    "allowPrivate": true,
-    "allowGroup": true,
-    "allowAllGroups": true,
     "groupIDs": [],
-    "adminOnly": false,
-    "commandMode": "hybrid",
-    "autoConvertCommands": true,
     "notifications": {
       "enable": true,
       "startup": true,
+      "messengerStart": true,
       "shutdown": true,
+      "restart": true,
       "loginError": true,
       "logout": true,
       "cookieError": true,
@@ -188,12 +179,7 @@
       "databaseError": true,
       "systemError": true,
       "guardianError": true,
-      "restart": true
-    },
-    "security": {
-      "adminOnly": false,
-      "allowUnknownUsers": false,
-      "allowUnknownGroups": true
+      "recovered": true
     }
   }
 }
