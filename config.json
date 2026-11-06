@@ -107,7 +107,7 @@
     "enable": false,
     "timeInterval": 180,
     "url": "",
-    "notes": "Time in seconds. Recommended for uptime monitors."
+    "notes": "Time in seconds. Recommended using an uptime monitor."
   },
 
   "autoLoadScripts": {
@@ -130,7 +130,7 @@
   },
 
   "notiWhenListenMqttError": {
-    "notes": "Notification settings when MQTT stops listening.",
+    "notes": "Notification settings when Messenger MQTT stops listening.",
     "gmail": {
       "enable": false,
       "emailGetNoti": ""
@@ -177,7 +177,52 @@
     "selfListen": false,
     "selfListenEvent": true,
     "autoMarkDelivery": false,
-    "autoReconnect": true,
-    "notes": "Automatic reconnect enabled for long-running Messenger sessions."
+    "autoReconnect": true
+  },
+
+  "telegram": {
+    "enable": true,
+
+    "botToken": "",
+
+    "prefix": "!",
+
+    "adminUID": [
+      "YOUR_TELEGRAM_USER_ID"
+    ],
+
+    "ownerUID": "YOUR_TELEGRAM_USER_ID",
+
+    "groupIDs": [
+      "YOUR_TELEGRAM_GROUP_ID"
+    ],
+
+    "allowPrivate": true,
+    "allowGroup": true,
+
+    "useMessengerAdmin": false,
+    "useMessengerWhitelist": false,
+
+    "commandMode": "hybrid",
+
+    "autoConvertCommands": true,
+
+    "notifications": {
+      "enable": true,
+      "loginError": true,
+      "logout": true,
+      "cookieError": true,
+      "listenerError": true,
+      "commandError": true,
+      "databaseError": true,
+      "systemError": true,
+      "restart": true
+    },
+
+    "security": {
+      "adminOnly": true,
+      "allowUnknownUsers": false,
+      "allowUnknownGroups": false
+    }
   }
 }
