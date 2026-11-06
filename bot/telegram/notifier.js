@@ -5,7 +5,8 @@ const TelegramAPI = require("./api");
 const path = require("path");
 const fs = require("fs");
 
-const telegram = new TelegramAPI();
+let telegram = null;
+let telegramToken = null;
 
 const STATE_PATH = path.join(
   __dirname,
@@ -27,7 +28,7 @@ const ALERT_DESIGNS = {
   messengerStart: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 💬 𝗠𝗘𝗦𝗦𝗘𝗡𝗚𝗘𝗥 𝗖𝗢𝗡𝗡𝗘𝗖𝗧𝗘𝗗 
+» 💬 𝗠𝗘𝗦𝗦𝗘𝗡𝗚𝗘𝗥 𝗖𝗢𝗡𝗡𝗘𝗖𝗧𝗘𝗗
 » 👤 𝗔𝗖𝗖𝗢𝗨𝗡𝗧 : ${d.account || "Facebook Account"}
 » 🆔 𝗨𝗜𝗗 : ${d.uid || "N/A"}
 » 🔗 𝗖𝗢𝗡𝗡𝗘𝗖𝗧𝗜𝗢𝗡 : 𝗦𝗨𝗖𝗖𝗘𝗦𝗦 | সফল
@@ -38,7 +39,7 @@ const ALERT_DESIGNS = {
   restart: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 🔄 𝗕𝗢𝗧 𝗥𝗘𝗦𝗧𝗔𝗥𝗧𝗘𝗗 
+» 🔄 𝗕𝗢𝗧 𝗥𝗘𝗦𝗧𝗔𝗥𝗧𝗘𝗗
 » 💋 বট আবার চালু হয়েছে
 » 🛠️ 𝗥𝗘𝗔𝗦𝗢𝗡 : ${d.reason || "প্রসেস পুনরায় চালু হয়েছে"}
 » ⏱️ 𝗧𝗜𝗠𝗘 : ${d.time || new Date().toLocaleString("en-GB", { timeZone: "Asia/Dhaka" })}
@@ -49,7 +50,7 @@ const ALERT_DESIGNS = {
   logout: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 🚪 𝗙𝗔𝗖𝗘𝗕𝗢𝗢𝗞 𝗟𝗢𝗚𝗢𝗨𝗧 
+» 🚪 𝗙𝗔𝗖𝗘𝗕𝗢𝗢𝗞 𝗟𝗢𝗚𝗢𝗨𝗧
 » 😫 আইডি লগআউট হয়েছে
 » 👤 𝗔𝗖𝗖𝗢𝗨𝗡𝗧 : ${d.account || "Facebook"}
 » 🆔 𝗨𝗜𝗗 : ${d.uid || "N/A"}
@@ -61,7 +62,7 @@ const ALERT_DESIGNS = {
   loginError: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 🔑 𝗟𝗢𝗚𝗜𝗡 𝗙𝗔𝗜𝗟𝗘𝗗 
+» 🔑 𝗟𝗢𝗚𝗜𝗡 𝗙𝗔𝗜𝗟𝗘𝗗
 » 🔰 লগইন ব্যর্থ হয়েছে
 » 👤 𝗔𝗖𝗖𝗢𝗨𝗡𝗧 : ${d.account || "Facebook"}
 » 🆔 𝗨𝗜𝗗 : ${d.uid || "N/A"}
@@ -85,11 +86,11 @@ const ALERT_DESIGNS = {
   listenerError: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 🎧 𝗟𝗜𝗦𝗧𝗘𝗡𝗘𝗥 𝗘𝗥𝗥𝗢𝗥 
+» 🎧 𝗟𝗜𝗦𝗧𝗘𝗡𝗘𝗥 𝗘𝗥𝗥𝗢𝗥
 » 🫷 লিসেনারে সমস্যা
 » 📡 𝗘𝗩𝗘𝗡𝗧 : ${d.event || "Messenger Listener"}
 » 🧯 𝗘𝗥𝗥𝗢𝗥 : ${d.error || d.details || "ইভেন্ট গ্রহণে সমস্যা"}
-» 🚨 𝗦𝗧𝗔𝗧𝗨𝗦 : 𝗘𝗥𝗥𝗢𝗥 𝗗𝗘𝗧𝗘𝗖𝗧𝗘𝗗 
+» 🚨 𝗦𝗧𝗔𝗧𝗨𝗦 : 𝗘𝗥𝗥𝗢𝗥 𝗗𝗘𝗧𝗘𝗖𝗧𝗘𝗗
 » ⚛️ সমস্যা শনাক্ত
 ━━━━━━━━━━━━━━━━
 » 🧚‍♀️𝗡𝗜𝗝𝗛𝗨𝗠 𝗖𝗛𝗔𝗧𝗕𝗢𝗧`,
@@ -97,7 +98,7 @@ const ALERT_DESIGNS = {
   spam: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 🛑 𝗚𝗥𝗢𝗨𝗣 𝗦𝗣𝗔𝗠 𝗔𝗟𝗘𝗥𝗧 
+» 🛑 𝗚𝗥𝗢𝗨𝗣 𝗦𝗣𝗔𝗠 𝗔𝗟𝗘𝗥𝗧
 » 🤐 গ্রুপে স্প্যাম
 » 👥 𝗚𝗥𝗢𝗨𝗣 : ${d.group || "Unknown"}
 » 🆔 𝗚𝗥𝗢𝗨𝗣 𝗜𝗗 : ${d.groupID || "N/A"}
@@ -110,7 +111,7 @@ const ALERT_DESIGNS = {
   commandError: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 🧾 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗘𝗥𝗥𝗢𝗥 
+» 🧾 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗘𝗥𝗥𝗢𝗥
 » 😛 কমান্ডে সমস্যা
 » ⌨️ 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 : ${d.command || "Unknown"}
 » 👤 𝗨𝗦𝗘𝗥 𝗜𝗗 : ${d.uid || "N/A"}
@@ -123,7 +124,7 @@ const ALERT_DESIGNS = {
   eventError: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 🎯 𝗘𝗩𝗘𝗡𝗧 𝗘𝗥𝗥𝗢𝗥 
+» 🎯 𝗘𝗩𝗘𝗡𝗧 𝗘𝗥𝗥𝗢𝗥
 » 😆 ইভেন্টে সমস্যা
 » 🧭 𝗘𝗩𝗘𝗡𝗧 : ${d.event || "Unknown"}
 » 🐛 𝗘𝗥𝗥𝗢𝗥 : ${d.error || d.details || "ইভেন্ট পরিচালনা করা যায়নি"}
@@ -134,7 +135,7 @@ const ALERT_DESIGNS = {
   databaseError: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 🗄️ 𝗗𝗔𝗧𝗔𝗕𝗔𝗦𝗘 𝗘𝗥𝗥𝗢𝗥 
+» 🗄️ 𝗗𝗔𝗧𝗔𝗕𝗔𝗦𝗘 𝗘𝗥𝗥𝗢𝗥
 » 😏 ডেটাবেজ সমস্যা
 » 📂 𝗦𝗢𝗨𝗥𝗖𝗘 : ${d.source || "Database"}
 » 🐞 𝗘𝗥𝗥𝗢𝗥 : ${d.error || d.details || "ডেটা সংরক্ষণে সমস্যা"}
@@ -145,7 +146,7 @@ const ALERT_DESIGNS = {
   systemError: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 🚨 𝗦𝗬𝗦𝗧𝗘𝗠 𝗘𝗥𝗥𝗢𝗥 
+» 🚨 𝗦𝗬𝗦𝗧𝗘𝗠 𝗘𝗥𝗥𝗢𝗥
 » 🤭 সিস্টেম সমস্যা
 » 🖥️ 𝗦𝗢𝗨𝗥𝗖𝗘 : ${d.source || "System"}
 » 🧨 𝗘𝗥𝗥𝗢𝗥 : ${d.error || d.details || "অজানা সিস্টেম সমস্যা"}
@@ -156,7 +157,7 @@ const ALERT_DESIGNS = {
   guardianError: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 🛡️ 𝗚𝗨𝗔𝗥𝗗𝗜𝗔𝗡 𝗘𝗥𝗥𝗢𝗥 | 
+» 🛡️ 𝗚𝗨𝗔𝗥𝗗𝗜𝗔𝗡 𝗘𝗥𝗥𝗢𝗥 |
 » 😃 গার্ডিয়ান সমস্যা
 » ⚙️ 𝗣𝗥𝗢𝗖𝗘𝗦𝗦 : ${d.process || "Guardian"}
 » 🧯 𝗘𝗥𝗥𝗢𝗥 : ${d.error || d.details || "Guardian কাজ করছে না"}
@@ -167,7 +168,7 @@ const ALERT_DESIGNS = {
   shutdown: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 🌙 𝗕𝗢𝗧 𝗦𝗧𝗢𝗣𝗣𝗘𝗗 | 
+» 🌙 𝗕𝗢𝗧 𝗦𝗧𝗢𝗣𝗣𝗘𝗗 |
 » ♻️ বট বন্ধ হয়েছে
 » 📴 𝗥𝗘𝗔𝗦𝗢𝗡 : ${d.reason || "প্রসেস বন্ধ হয়েছে"}
 » 🔌 𝗦𝗧𝗔𝗧𝗨𝗦 : 𝗢𝗙𝗙𝗟𝗜𝗡𝗘 | বন্ধ
@@ -178,10 +179,10 @@ const ALERT_DESIGNS = {
   recovered: (d = {}) => `
 » 👑 𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━
-» 🩹 𝗣𝗥𝗢𝗕𝗟𝗘𝗠 𝗙𝗜𝗫𝗘𝗗 
+» 🩹 𝗣𝗥𝗢𝗕𝗟𝗘𝗠 𝗙𝗜𝗫𝗘𝗗
 » 😔 সমস্যা সমাধান হয়েছে
 » 🔧 𝗣𝗥𝗢𝗕𝗟𝗘𝗠 : ${d.problem || "Unknown"}
-» 🟢 𝗦𝗧𝗔𝗧𝗨𝗦 : 𝗥𝗘𝗖𝗢𝗩𝗘𝗥𝗘𝗗 
+» 🟢 𝗦𝗧𝗔𝗧𝗨𝗦 : 𝗥𝗘𝗖𝗢𝗩𝗘𝗥𝗘𝗗
 » 🪯 স্বাভাবিক হয়েছে
 » ✨ 𝗗𝗘𝗧𝗔𝗜𝗟𝗦 : ${d.details || "সিস্টেম আবার স্বাভাবিক"}
 ━━━━━━━━━━━━━━━━
@@ -196,6 +197,21 @@ function readConfig() {
   } catch {
     return {};
   }
+}
+
+// Token পাওয়া গেলে তবেই TelegramAPI তৈরি হবে।
+function getTelegramClient(config) {
+  const tg = config.telegram || {};
+  const token = tg.botToken || process.env.TELEGRAM_BOT_TOKEN;
+
+  if (!token) return null;
+
+  if (!telegram || telegramToken !== token) {
+    telegram = new TelegramAPI(token);
+    telegramToken = token;
+  }
+
+  return telegram;
 }
 
 function readState() {
@@ -215,12 +231,17 @@ function saveState(state) {
 
 function getRecipients(config) {
   const tg = config.telegram || {};
+
   return [
     ...new Set(
-      [tg.adminUID, tg.ownerUID, ...(tg.groupIDs || [])]
+      [
+        ...(Array.isArray(tg.adminUID) ? tg.adminUID : [tg.adminUID]),
+        ...(Array.isArray(tg.ownerUID) ? tg.ownerUID : [tg.ownerUID]),
+        ...(tg.groupIDs || [])
+      ]
         .filter(Boolean)
         .map(String)
-    ),
+    )
   ];
 }
 
@@ -234,6 +255,16 @@ async function sendTelegramAlert(type, details = {}, options = {}) {
 
   const design = ALERT_DESIGNS[type];
   if (!design) return false;
+
+  // Token না থাকলে পুরো বট বন্ধ হবে না; শুধু notification বাদ যাবে।
+  const client = getTelegramClient(config);
+  if (!client) {
+    console.warn("[Telegram Notifier] Bot token পাওয়া যায়নি।");
+    return false;
+  }
+
+  const recipients = getRecipients(config);
+  if (!recipients.length) return false;
 
   const problemKey = String(options.problemKey || type);
   const state = readState();
@@ -252,18 +283,16 @@ async function sendTelegramAlert(type, details = {}, options = {}) {
 
     state.activeProblems[problemKey] = {
       type,
-      time: Date.now(),
+      time: Date.now()
     };
+
     saveState(state);
   }
-
-  const recipients = getRecipients(config);
-  if (!recipients.length) return false;
 
   const message = design(details);
 
   const results = await Promise.allSettled(
-    recipients.map((chatId) => telegram.sendMessage(chatId, message))
+    recipients.map((chatId) => client.sendMessage(chatId, message))
   );
 
   return results.every((result) => result.status === "fulfilled");
@@ -271,5 +300,5 @@ async function sendTelegramAlert(type, details = {}, options = {}) {
 
 module.exports = {
   sendTelegramAlert,
-  ALERT_DESIGNS,
+  ALERT_DESIGNS
 };
