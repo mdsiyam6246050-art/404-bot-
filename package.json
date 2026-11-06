@@ -1,8 +1,10 @@
 {
-  "name": "goat-bot-v2",
+  "name": "404-bot",
   "version": "1.5.35",
-  "description": "GoatBot Messenger Automation",
+  "description": "404 BOT Messenger Automation",
   "main": "index.js",
+  "author": "Siyam Hasan",
+  "license": "MIT",
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=7.0.0"
@@ -10,8 +12,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node index.js",
-    "prod": "node index.js",
-    "guardian": "node guardian/start.js"
+    "prod": "node index.js"
   },
   "dependencies": {
     "@distube/ytdl-core": "^4.13.3",
@@ -36,6 +37,7 @@
     "gradient-string": "^2.0.2",
     "graphql-query-to-json": "^2.0.1",
     "jsonlint-mod": "^1.7.6",
+    "lodash": "^4.17.21",
     "mime-db": "^1.52.0",
     "moment-timezone": "^0.5.34",
     "mongoose": "^6.3.1",
@@ -59,7 +61,5 @@
     "totp-generator": "^0.0.13",
     "websocket-stream": "^5.5.2",
     "ws3-fca": "^1.0.0"
-  },
-  "author": "siyam",
-  "license": "MIT"
+  }
 }
