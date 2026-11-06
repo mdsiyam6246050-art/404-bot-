@@ -1,3 +1,4 @@
+
 "use strict";
 
 const axios = require("axios");
@@ -7,6 +8,8 @@ const path = require("path");
 const ROOT = path.join(__dirname, "../..");
 const CONFIG_PATH = path.join(ROOT, "config.json");
 const STATE_PATH = path.join(ROOT, "data/telegram-alert-state.json");
+
+const DEFAULT_DEDUPE_WINDOW = 5 * 60 * 1000;
 
 const ALERT_DESIGNS = {
     startup: d => `
@@ -187,17 +190,27 @@ function getRecipients(config) {
         ? tg.groupIDs
         : [tg.groupIDs];
 
-    return [...new Set(
-        [...admins, ...owners, ...groups]
-            .filter(Boolean)
-            .map(String)
-    )];
+    return [
+        ...new Set(
+            [...admins, ...owners, ...groups]
+                .filter(Boolean)
+                .map(String)
+        )
+    ];
 }
 
 function readState() {
     try {
-        return fs.readJsonSync(STATE_PATH);
-    } catch {
+        const state = fs.readJsonSync(STATE_PATH);
+
+        if (!state || typeof state !== "object") {
+            return { activeProblems: {} };
+        }
+
+        state.activeProblems ||= {};
+
+        return state;
+    } catch (_) {
         return { activeProblems: {} };
     }
 }
@@ -205,11 +218,57 @@ function readState() {
 function saveState(state) {
     fs.ensureDirSync(path.dirname(STATE_PATH));
 
-    const temp = STATE_PATH + ".tmp";
+    const tempPath = `${STATE_PATH}.tmp`;
 
-    fs.writeJsonSync(temp, state, { spaces: 2 });
+    fs.writeJsonSync(tempPath, state, {
+        spaces: 2
+    });
 
-    fs.moveSync(temp, STATE_PATH, { overwrite: true });
+    fs.moveSync(tempPath, STATE_PATH, {
+        overwrite: true
+    });
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function sendToTelegram(token, chatId, message) {
+    let lastError;
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+            await axios.post(
+                `https://api.telegram.org/bot${token}/sendMessage`,
+                {
+                    chat_id: chatId,
+                    text: message,
+                    disable_web_page_preview: true
+                },
+                {
+                    timeout: 15000
+                }
+            );
+
+            return true;
+        } catch (error) {
+            lastError = error;
+
+            const retryAfter = Number(
+                error.response?.data?.parameters?.retry_after || 0
+            );
+
+            if (attempt < 3) {
+                await sleep(
+                    retryAfter > 0
+                        ? retryAfter * 1000
+                        : attempt * 1500
+                );
+            }
+        }
+    }
+
+    throw lastError || new Error("Telegram delivery failed");
 }
 
 async function sendTelegramAlert(type, details = {}, options = {}) {
@@ -218,9 +277,13 @@ async function sendTelegramAlert(type, details = {}, options = {}) {
         const tg = config.telegram || {};
         const notifications = tg.notifications || {};
 
-        if (tg.enable === false) return false;
-        if (notifications.enable === false) return false;
-        if (notifications[type] === false) return false;
+        if (tg.enable === false || notifications.enable === false) {
+            return false;
+        }
+
+        if (notifications[type] === false) {
+            return false;
+        }
 
         const design = ALERT_DESIGNS[type];
 
@@ -241,34 +304,35 @@ async function sendTelegramAlert(type, details = {}, options = {}) {
 
         const problemKey = String(options.problemKey || type);
 
+        const recoveredKey = String(
+            options.recoveredKey || problemKey
+        );
+
+        const isRecovery = type === "recovered";
+
         const state = readState();
-        state.activeProblems ||= {};
+        const now = Date.now();
 
-        if (type === "recovered") {
-            const recoveredKey = String(
-                options.recoveredKey || problemKey
-            );
-
-            if (!state.activeProblems[recoveredKey]) {
-                return false;
-            }
-
-            delete state.activeProblems[recoveredKey];
-            saveState(state);
-        } else if (options.dedupe !== false) {
-            if (state.activeProblems[problemKey]) {
-                return false;
-            }
-
-            state.activeProblems[problemKey] = {
-                type,
-                time: Date.now()
-            };
-
-            saveState(state);
+        if (isRecovery && !state.activeProblems[recoveredKey]) {
+            return false;
         }
 
-        let message = design(details);
+        if (!isRecovery && options.dedupe !== false) {
+            const previous = state.activeProblems[problemKey];
+
+            const windowMs = Number(options.dedupeWindowMs) > 0
+                ? Number(options.dedupeWindowMs)
+                : DEFAULT_DEDUPE_WINDOW;
+
+            if (
+                previous &&
+                now - Number(previous.time || 0) < windowMs
+            ) {
+                return false;
+            }
+        }
+
+        let message = design(details || {});
 
         if (message.length > 3900) {
             message = message.slice(0, 3900) + "\n... (Too long)";
@@ -276,15 +340,7 @@ async function sendTelegramAlert(type, details = {}, options = {}) {
 
         const results = await Promise.allSettled(
             recipients.map(chatId =>
-                axios.post(
-                    `https://api.telegram.org/bot${token}/sendMessage`,
-                    {
-                        chat_id: chatId,
-                        text: message,
-                        disable_web_page_preview: true
-                    },
-                    { timeout: 15000 }
-                )
+                sendToTelegram(token, chatId, message)
             )
         );
 
@@ -296,8 +352,25 @@ async function sendTelegramAlert(type, details = {}, options = {}) {
             console.error(
                 "[Telegram] Delivery failed:",
                 failed.length,
+                "of",
+                recipients.length,
                 "recipient(s)"
             );
+        }
+
+        // Update saved state only after successful delivery.
+        if (failed.length === 0) {
+            if (isRecovery) {
+                delete state.activeProblems[recoveredKey];
+                saveState(state);
+            } else if (options.dedupe !== false) {
+                state.activeProblems[problemKey] = {
+                    type,
+                    time: now
+                };
+
+                saveState(state);
+            }
         }
 
         return failed.length === 0;
