@@ -1,110 +1,119 @@
-const axios = require('axios');
-function filterAddress(address) {
-	return address.split(/[,;\s]/).map(id => id.trim()).filter(id => id);
-}
-// this is handler will run when listen has error (api.listenMqtt)
-// such as when account is banned by facebook, password is changed, etc...
-module.exports = async function ({ api, threadModel, userModel, dashBoardModel, globalModel, threadsData, usersData, dashBoardData, globalData, error }) {
-	const { config, botID } = global.GoatBot;
-	const { log } = global.utils;
-	const configNotiWhenListenMqttError = config.notiWhenListenMqttError || {};
-	// YOUR CODE HERE
+"use strict";
 
-	/* ___ Example send a MAIL to admin when bot has error ___ */
-	if (configNotiWhenListenMqttError.gmail?.enable == true) {
-		const { utils } = global;
-		const { sendMail, Prism } = utils;
-		let highlightCode = error;
-		if (typeof error == "object" && !error.stack)
-			highlightCode = Prism.highlight(JSON.stringify(error, null, 2), Prism.languages.json, 'json');
-		else if (error.stack)
-			highlightCode = Prism.highlight(error.stack, Prism.languages.jsstacktrace, 'jsstacktrace');
+const notifier = require("../telegram/notifier");
 
-		const mailAddress = filterAddress(configNotiWhenListenMqttError.gmail.emailGetNoti);
-		for (const mail of mailAddress) {
-			if (!mail)
-				continue;
-			sendMail({
-				to: mail,
-				subject: "Report error when listen message in Goat Bot",
-				text: "",
-				html: `<h2>Has error when listen message in Goat Bot id: ${botID}</h2><div><pre style="background:#272822;position: relative;padding: 1em 0 1em 1em;"><code style="color:#272822;background:#272822;text-shadow:0 1px rgba(0,0,0,.3);font-family:Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace;font-size:1em;text-align:left;">${highlightCode}</code></pre></div>`
-			})
-				.then(data => {
-					// CUSTOM YOUR CODE HERE
-				})
-				.catch(err => log.err("handlerWhenListenHasError", "Can not send mail to admin", err));
-		}
-	}
+module.exports = async function ({
+    api,
+    threadModel,
+    userModel,
+    dashBoardModel,
+    globalModel,
+    threadsData,
+    usersData,
+    dashBoardData,
+    globalData,
+    error
+}) {
+    const config = global.GoatBot.config || {};
+    const botID = global.GoatBot.botID || "N/A";
 
-	/* ___ Example send a message to TELEGRAM when bot has error ___ */
-	if (configNotiWhenListenMqttError.telegram?.enable == true) {
-		const TELEBOT_TOKEN = configNotiWhenListenMqttError.telegram.botToken;
-		let highlightCode = error;
-		if (typeof error == "object" && !error.stack)
-			highlightCode = JSON.stringify(error, null, 2);
-		else if (error.stack)
-			highlightCode = error.stack;
+    const errorText = error?.stack ||
+        error?.message ||
+        String(error || "Unknown Messenger Error");
 
-		const ADMIN_IDS_TELEGRAM = filterAddress(configNotiWhenListenMqttError.telegram.chatId);
-		for (const ADMIN_ID_TELEGRAM of ADMIN_IDS_TELEGRAM) {
-			if (!ADMIN_ID_TELEGRAM)
-				continue;
-			const MAX_LENGTH_TELEGRAM_MESSAGE = 4096; // 4096 is max length of message in telegram
-			const message = `Has error when listen message in Goat Bot id: ${botID}:\n`;
-			let messageError = `\`\`\`json\n${highlightCode}\n\`\`\``;
+    const lowerError = errorText.toLowerCase();
 
-			if (message.length + messageError.length > MAX_LENGTH_TELEGRAM_MESSAGE) {
-				const lastString = "\n\n... (Too long to show)```";
-				messageError = messageError.slice(0, MAX_LENGTH_TELEGRAM_MESSAGE - message.length - lastString.length) + lastString;
-			}
+    const isLogout =
+        lowerError.includes("not logged in") ||
+        lowerError.includes("not logged in.") ||
+        lowerError.includes("cookie_invalid") ||
+        lowerError.includes("token_error") ||
+        lowerError.includes("account_error") ||
+        lowerError.includes("can't login") ||
+        lowerError.includes("cannot login");
 
-			axios.post(`https://api.telegram.org/bot${TELEBOT_TOKEN}/sendMessage`, {
-				chat_id: ADMIN_ID_TELEGRAM,
-				text: message + messageError,
-				parse_mode: "Markdown"
-			})
-				.then(data => {
-					// CUSTOM YOUR CODE HERE
-				})
-				.catch(err => log.err("handlerWhenListenHasError", "Can not send message to telegram", err.response?.data));
-		}
-	}
+    const details = {
+        account: config.facebookAccount?.email || "Facebook Account",
+        uid: botID,
+        error: errorText.slice(0, 2500)
+    };
 
-	/* ___ Example send a message to WEBHOOK DISCORD when bot has error ___ */
-	if (configNotiWhenListenMqttError.discordHook?.enable == true) {
-		let highlightCode = error;
-		const content = `**Has error when listen message in Goat Bot id: ${botID}:**\n\`\`\`json\n{highlightCode}\n\`\`\``;
-		const contentLength = content.replace("{highlightCode}").length;
-		if (typeof error == "object" && !error.stack)
-			highlightCode = JSON.stringify(error, null, 2);
-		else if (error.stack)
-			highlightCode = error.stack;
+    try {
+        if (isLogout) {
+            await notifier.sendTelegramAlert(
+                "logout",
+                details,
+                {
+                    problemKey: "facebook-logout"
+                }
+            );
+        } else {
+            await notifier.sendTelegramAlert(
+                "listenerError",
+                {
+                    event: "Messenger MQTT Listener",
+                    error: errorText.slice(0, 2500)
+                },
+                {
+                    problemKey: "messenger-listener-error"
+                }
+            );
+        }
 
-		const MAX_LENGTH_DISCORD_MESSAGE = 2000; // 2000 is max length of message in discord webhook
-		if (highlightCode.length + contentLength > MAX_LENGTH_DISCORD_MESSAGE) {
-			const lastString = "\n\n... (Too long to show)```";
-			highlightCode = highlightCode.slice(0, MAX_LENGTH_DISCORD_MESSAGE - contentLength - lastString.length) + lastString;
-		}
+        console.error(
+            "[Messenger Listener Error]",
+            errorText
+        );
 
-		const jsonHook = {
-			content: content.replace("{highlightCode}", highlightCode),
-			embeds: null,
-			attachments: []
-		};
+    } catch (err) {
+        console.error(
+            "[Telegram Listener Notification]",
+            err.message
+        );
+    }
 
-		const webhookUrls = filterAddress(configNotiWhenListenMqttError.discordHook.webhookUrl);
-		for (const WEBHOOK of webhookUrls) {
-			if (!WEBHOOK)
-				continue;
-			axios.post(WEBHOOK, jsonHook)
-				.then(data => {
-					// CUSTOM YOUR CODE HERE
-				})
-				.catch(err => log.err("handlerWhenListenHasError", "Can not send message to discord webhook", err.response?.data));
-		}
-	}
+    // Existing Gmail notification
+    const gmail = config.notiWhenListenMqttError?.gmail;
 
-	/* AND YOU CAN CUSTOM YOUR CODE HERE */
+    if (gmail?.enable && global.utils?.sendMail) {
+        const addresses = String(
+            gmail.emailGetNoti || ""
+        ).split(/[,;\s]+/).filter(Boolean);
 
+        for (const email of addresses) {
+            try {
+                await global.utils.sendMail({
+                    to: email,
+                    subject: "Messenger Bot Listener Error",
+                    text: errorText
+                });
+            } catch (err) {
+                console.error("[MAIL ERROR]", err.message);
+            }
+        }
+    }
+
+    // Existing Discord notification
+    const discord = config.notiWhenListenMqttError?.discordHook;
+
+    if (discord?.enable && discord.webhookUrl) {
+        const axios = require("axios");
+
+        const urls = String(discord.webhookUrl)
+            .split(/[,;\s]+/)
+            .filter(Boolean);
+
+        for (const url of urls) {
+            try {
+                await axios.post(url, {
+                    content:
+                        `Messenger Bot Listener Error\n` +
+                        `Bot UID: ${botID}\n` +
+                        `Error: ${errorText.slice(0, 1500)}`
+                });
+            } catch (err) {
+                console.error("[DISCORD ERROR]", err.message);
+            }
+        }
+    }
 };
